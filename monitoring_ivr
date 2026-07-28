@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard & Pencatatan Testing IVR Telkomsel</title>
+    <title>Dashboard Monitoring & Testing QA Telkomsel</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
@@ -11,10 +11,12 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- SheetJS for Export Excel (.xlsx) -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.com"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .main-menu-active { background-color: #0284c7; color: #ffffff; font-weight: 600; shadow: sm; }
+        .main-menu-inactive { color: #94a3b8; }
+        .main-menu-inactive:hover { background-color: #1e293b; color: #ffffff; }
         .tab-active { border-bottom: 3px solid #0284c7; color: #0284c7; font-weight: 600; }
     </style>
 </head>
@@ -23,42 +25,65 @@
     <!-- Header / Navbar -->
     <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-red-600 p-2 rounded-lg text-white">
-                    <i data-lucide="phone-call" class="w-6 h-6"></i>
+            <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-red-600 p-2 rounded-lg text-white">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">QA Monitoring Dashboard</h1>
+                        <p class="text-xs text-slate-400">Telkomsel Quality Assurance System</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight">Monitoring & Testing IVR</h1>
-                    <p class="text-xs text-slate-400">Telkomsel Quality Assurance System</p>
-                </div>
+
+                <!-- NAVIGATION SWITCHER (IVR | GraPARI IndiHome | GraPARI Mobile) -->
+                <nav class="hidden md:flex bg-slate-800 p-1 rounded-xl border border-slate-700/60 ml-4 space-x-1">
+                    <button onclick="switchMainMenu('ivr')" id="menu-btn-ivr" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-active">
+                        <i data-lucide="phone-call" class="w-4 h-4"></i> IVR
+                    </button>
+                    <button onclick="switchMainMenu('grapari-indihome')" id="menu-btn-grapari-indihome" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-inactive">
+                        <i data-lucide="home" class="w-4 h-4"></i> GraPARI IndiHome
+                    </button>
+                    <button onclick="switchMainMenu('grapari-mobile')" id="menu-btn-grapari-mobile" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-inactive">
+                        <i data-lucide="smartphone" class="w-4 h-4"></i> GraPARI Mobile
+                    </button>
+                </nav>
             </div>
+
             <div class="flex items-center space-x-2">
-                <!-- Download Excel Dropdown / Button -->
                 <button onclick="exportToExcel()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-sm">
                     <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export Excel (.xlsx)
                 </button>
                 <button onclick="exportJSON()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition">
                     <i data-lucide="download" class="w-4 h-4"></i> Backup JSON
                 </button>
-                <button onclick="resetData()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-900/40 text-red-300 hover:bg-red-900/70 border border-red-800/50 rounded-lg transition">
-                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset Data
+                <button onclick="clearAllData()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-900/40 text-red-300 hover:bg-red-900/70 border border-red-800/50 rounded-lg transition">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> Clear Data
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Navigation Tabs -->
+    <!-- Sub-Navigation Tabs (Dashboard vs Table) -->
     <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-8">
-            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="py-4 text-sm font-medium flex items-center gap-2 tab-active">
-                <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Overview
-            </button>
-            <button onclick="switchTab('data-table')" id="tab-data-table" class="py-4 text-sm font-medium text-slate-500 hover:text-slate-700 flex items-center gap-2">
-                <i data-lucide="list-checks" class="w-4 h-4"></i> Data Test Case & Pencatatan (<span id="total-badge">0</span>)
-            </button>
-            <button onclick="openAddModal()" class="ml-auto my-auto py-2 px-4 text-xs font-semibold bg-sky-600 hover:bg-sky-700 text-white rounded-lg flex items-center gap-1.5 transition shadow-sm">
-                <i data-lucide="plus" class="w-4 h-4"></i> Catat Hasil Test Baru
-            </button>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <div class="flex space-x-8">
+                <button onclick="switchSubTab('dashboard')" id="tab-dashboard" class="py-4 text-sm font-medium flex items-center gap-2 tab-active">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Overview
+                </button>
+                <button onclick="switchSubTab('data-table')" id="tab-data-table" class="py-4 text-sm font-medium text-slate-500 hover:text-slate-700 flex items-center gap-2">
+                    <i data-lucide="list-checks" class="w-4 h-4"></i> Data Test Case (<span id="total-badge">0</span>)
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <span id="active-system-tag" class="px-2.5 py-1 text-xs font-semibold bg-sky-100 text-sky-800 rounded-full border border-sky-200 flex items-center gap-1">
+                    <i data-lucide="phone-call" class="w-3 h-3"></i> Modul: Testing IVR
+                </span>
+                <button onclick="openAddModal()" class="py-2 px-4 text-xs font-semibold bg-sky-600 hover:bg-sky-700 text-white rounded-lg flex items-center gap-1.5 transition shadow-sm">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Catat Hasil Test
+                </button>
+            </div>
         </div>
     </div>
 
@@ -74,7 +99,7 @@
                     <div>
                         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Test Cases</p>
                         <h3 class="text-2xl font-bold text-slate-900 mt-1" id="metric-total">0</h3>
-                        <p class="text-xs text-slate-400 mt-1">Skenario dalam database</p>
+                        <p class="text-xs text-slate-400 mt-1">Skenario terdaftar</p>
                     </div>
                     <div class="p-3 bg-slate-100 rounded-lg text-slate-600">
                         <i data-lucide="file-text" class="w-6 h-6"></i>
@@ -105,7 +130,7 @@
 
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Pending</p>
+                        <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Pending / Untested</p>
                         <h3 class="text-2xl font-bold text-amber-600 mt-1" id="metric-pending">0</h3>
                         <p class="text-xs text-amber-600/70 mt-1" id="metric-pending-pct">0% dari total</p>
                     </div>
@@ -127,10 +152,10 @@
                     </div>
                 </div>
 
-                <!-- Category Breakdown Chart -->
+                <!-- Category / Capability Breakdown Chart -->
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
                     <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
-                        <i data-lucide="bar-chart-3" class="w-4 h-4 text-sky-600"></i> Hasil per Jenis Layanan
+                        <i data-lucide="bar-chart-3" class="w-4 h-4 text-sky-600"></i> <span id="category-chart-title">Hasil per Layanan</span>
                     </h3>
                     <div class="h-64">
                         <canvas id="categoryChart"></canvas>
@@ -156,8 +181,8 @@
                         <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider font-semibold">
                             <tr>
                                 <th class="py-3 px-4 w-12 text-center">No</th>
-                                <th class="py-3 px-4 w-32">Layanan / Tier</th>
-                                <th class="py-3 px-4 w-48">Menu / Step</th>
+                                <th class="py-3 px-4 w-40" id="issue-th-category">Kategori / Capability</th>
+                                <th class="py-3 px-4 w-48">Wording / Step</th>
                                 <th class="py-3 px-4">Deskripsi Temuan / Issue</th>
                                 <th class="py-3 px-4">Usulan Solusi / Propose</th>
                                 <th class="py-3 px-4 w-24 text-center">Status</th>
@@ -181,25 +206,23 @@
                     <!-- Search input -->
                     <div class="relative flex-1">
                         <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
-                        <input type="text" id="search-input" oninput="renderTable()" placeholder="Cari menu, wording, deskripsi..." class="pl-9 pr-4 py-2 w-full text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <input type="text" id="search-input" oninput="renderTable()" placeholder="Cari capability, step, deskripsi..." class="pl-9 pr-4 py-2 w-full text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
                     </div>
                     <!-- Filter Status -->
                     <select id="filter-result" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                        <option value="ALL">Semua Hasil</option>
+                        <option value="ALL">Semua Status</option>
                         <option value="Passed">Passed</option>
                         <option value="Failed">Failed</option>
-                        <option value="Pending">Pending / Not Tested</option>
+                        <option value="Pending">Pending / Untested</option>
                     </select>
-                    <!-- Filter Layanan -->
-                    <select id="filter-layanan" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                        <option value="ALL">Semua Layanan</option>
-                        <option value="1. Halo / Prabayar">Halo / Prabayar</option>
-                        <option value="2. IndiHome/Eznet">IndiHome / Eznet</option>
+                    <!-- Dynamic Filter Category -->
+                    <select id="filter-category" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <!-- Populated dynamically -->
                     </select>
-                    <!-- NEW: Sort by Date -->
+                    <!-- Sort by Date -->
                     <select id="sort-date" onchange="renderTable()" class="px-3 py-2 text-xs border border-amber-300 bg-amber-50/50 text-slate-700 font-semibold rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none flex items-center">
-                        <option value="DESC">📅 Tanggal Terbaru (Baru ➔ Lama)</option>
-                        <option value="ASC">📅 Tanggal Terlama (Lama ➔ Baru)</option>
+                        <option value="DESC">📅 Tanggal Terbaru</option>
+                        <option value="ASC">📅 Tanggal Terlama</option>
                     </select>
                 </div>
                 <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
@@ -216,23 +239,8 @@
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
                     <table class="w-full text-left text-xs relative">
-                        <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-wider sticky top-0 z-10">
-                            <tr>
-                                <th class="py-3 px-3 w-10 text-center">No</th>
-                                <th class="py-3 px-3 w-32 cursor-pointer hover:text-sky-300 transition" onclick="toggleSortDate()" title="Klik untuk mengubah urutan tanggal">
-                                    <div class="flex items-center gap-1">
-                                        Tanggal <i data-lucide="arrow-up-down" class="w-3 h-3"></i>
-                                    </div>
-                                </th>
-                                <th class="py-3 px-3 w-32">Layanan</th>
-                                <th class="py-3 px-3 w-28">Tier</th>
-                                <th class="py-3 px-3 w-40">Menu / Step</th>
-                                <th class="py-3 px-3">Detail Alur IVR</th>
-                                <th class="py-3 px-3 w-28 text-center">Hasil Test</th>
-                                <th class="py-3 px-3">Temuan / Issue</th>
-                                <th class="py-3 px-3">Usulan / Propose</th>
-                                <th class="py-3 px-3 w-20 text-center">Aksi</th>
-                            </tr>
+                        <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-wider sticky top-0 z-10" id="table-head-dynamic">
+                            <!-- Populated dynamically based on Active Menu -->
                         </thead>
                         <tbody id="main-table-body" class="divide-y divide-slate-200">
                             <!-- Populated dynamically -->
@@ -268,65 +276,29 @@
                         <select id="form-result" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none font-semibold">
                             <option value="Passed" class="text-emerald-600 font-bold">Passed</option>
                             <option value="Failed" class="text-rose-600 font-bold">Failed</option>
-                            <option value="Pending" class="text-amber-600 font-bold">Pending</option>
+                            <option value="Pending" class="text-amber-600 font-bold">Pending / Untested</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Layanan</label>
-                        <select id="form-layanan" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white font-medium text-slate-700">
-                            <option value="" disabled selected>-- Pilih Jenis Layanan --</option>
-                            <option value="1. Halo / Prabayar">Halo / Prabayar</option>
-                            <option value="2. IndiHome/Eznet">Eznet / Indihome</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tier Pelanggan</label>
-                        <select id="form-tier" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white font-medium text-slate-700">
-                            <option value="" disabled selected>-- Pilih Tier Pelanggan --</option>
-                            <option value="Reguler / Other">Reguler / Other</option>
-                            <option value="Diamond / Platinum">Diamond / Platinum</option>
-                        </select>
-                    </div>
+                <!-- Dynamic Form Fields Container -->
+                <div id="dynamic-form-fields" class="space-y-4">
+                    <!-- Injected via JavaScript -->
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Msisdn Used</label>
-                    <select id="form-step" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white font-medium text-slate-700">
-                        <option value="" disabled selected>-- Pilih Msisdn --</option>
-                        <option value="1. Nomor yang sama">Nomor yang sama</option>
-                        <option value="2. Nomor yang berbeda">Nomor yang berbeda</option>
-                    </select>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Wording / Step Navigasi</label>
+                    <textarea id="form-step" rows="2" placeholder="Detail langkah pengetesan..." required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Menu</label>
-                    <select id="form-step" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white font-medium text-slate-700">
-                        <option value="" disabled selected>-- Pilih Menu --</option>
-                        <option value="1. Nomor yang sama">Pembelian Paket</option>
-                        <option value="2. Nomor yang berbeda">Informasi PUK</option>
-                        <option value="3. Nomor yang berbeda">Informasi Ganti Kartu</option>
-                        <option value="4. Nomor yang berbeda">Keluhan</option>
-                        <option value="5. Nomor yang berbeda">Berbicara dengan Officer</option>
-                        <option value="6. Nomor yang berbeda">Mengulangi Pilihan Menu</option>
-                    </select>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Deskripsi Temuan / Issue</label>
+                    <textarea id="form-desc" rows="2" placeholder="Tuliskan kendala jika ada..." class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Step</label>
-                    <textarea id="form-detail" rows="2" placeholder="cth: Pelanggan tekan 1 -> Pilihan Bahasa -> Cek Pulsa..." class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Deskripsi Masalah</label>
-                    <textarea id="form-desc" rows="2" placeholder="Tuliskan kendala jika ada (cth: Telepon terputus saat pulsa tidak cukup)..." class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Rekomendasi Perbaikan (Propose)</label>
-                    <textarea id="form-propose" rows="2" placeholder="Tuliskan usulan solusi (cth: Perlu ditambahkan voice feedback)..." class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Rekomendasi / Propose Solusi</label>
+                    <textarea id="form-propose" rows="2" placeholder="Tuliskan usulan solusi perbaikan..." class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
                 </div>
 
                 <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
@@ -339,57 +311,91 @@
         </div>
     </div>
 
-    <!-- INITIAL DATA & SCRIPT LOGIC -->
+    <!-- SCRIPT LOGIC -->
     <script>
-        // Initial Dataset populated from Excel 'testing IVR new.xlsx'
-        const initialDataset = [
-            { id: 1, date: "2026-07-27", greeting: "IVR memberikan greeting...", layanan: "1. Halo / Prabayar", bahasa: "Bahasa", tier: "Diamond / Platinum", step: "Connect to Agent", detail: "Caroline akan menghubungkan pelanggan langsung ke Agent", result: "Passed", desc: "", propose: "" },
-            { id: 2, date: "2026-07-25", greeting: "", layanan: "1. Halo / Prabayar", bahasa: "Bahasa", tier: "Reguler / Other", step: "1. Nomor yang sama", detail: "Caroline akan menghubungkan pelanggan ke Agent -> Informasi survey SMS 1166 -> Beli Paket OMG", result: "Passed", desc: "", propose: "" },
-            { id: 3, date: "2026-07-26", greeting: "", layanan: "1. Halo / Prabayar", bahasa: "", tier: "", step: "2. Informasi PUK", detail: "Masukkan KTP -> Data terverifikasi -> IVR memberikan PUK -> Konfirmasi survey", result: "Passed", desc: "Telpon terputus setelah pelanggan isi survey", propose: "perlu ditambahkan Voice Feedback untuk pelanggan yang tidak ingin mengisi survey." },
-            { id: 4, date: "2026-07-24", greeting: "", layanan: "1. Halo / Prabayar", bahasa: "", tier: "", step: "2. Informasi PUK (Gagal NIK)", detail: "Data tidak terverifikasi -> Hubungkan ke agent Rp 300", result: "Passed", desc: "Telpon terputus pada saat pelanggan tidak ingin mengisi survey", propose: "perlu ditambahkan Voice Feedback untuk pelanggan yang tidak ingin mengisi survey." },
-            { id: 5, date: "2026-07-27", greeting: "", layanan: "1. Halo / Prabayar", bahasa: "", tier: "", step: "3. Informasi Ganti Kartu", detail: "Bawa KTP/KK ke GraPARI -> Berbicara dgn Officer Rp 300", result: "Passed", desc: "Telpon terputus, karena pulsa pelanggan tidak mencukupi.", propose: "perlu ditambahkan IVR existing untuk pulsa pelanggan yang tidak mencukupi." },
-            { id: 6, date: "2026-07-23", greeting: "", layanan: "1. Halo / Prabayar", bahasa: "", tier: "", step: "4. Keluhan Internet", detail: "Refresh jaringan 2G/3G/4G atau airplane mode -> Hubungi agent", result: "Passed", desc: "Telpon terputus, karena pulsa pelanggan tidak mencukupi.", propose: "perlu ditambahkan IVR existing untuk pulsa pelanggan yang tidak mencukupi." },
-            { id: 7, date: "2026-07-22", greeting: "", layanan: "1. Halo / Prabayar", bahasa: "", tier: "", step: "4. Keluhan Aktivasi Paket", detail: "Restart handphone -> Berbicara dgn Officer Rp 300", result: "Passed", desc: "Telpon terputus, karena pulsa pelanggan tidak mencukupi.", propose: "perlu ditambahkan Voice Feedback untuk pelanggan yang pulsanya tidak mencukupi" },
-            { id: 8, date: "2026-07-27", greeting: "", layanan: "1. Halo / Prabayar", bahasa: "", tier: "", step: "0. Berbicara dgn Officer", detail: "Caroline akan menghubungkan pelanggan ke Agent", result: "Passed", desc: "Telpon terputus pada saat pelanggan tidak ingin mengisi survey", propose: "perlu ditambahkan Voice Feedback untuk pelanggan yang tidak ingin mengisi survey." },
-            { id: 9, date: "2026-07-21", greeting: "", layanan: "1. Halo / Prabayar", bahasa: "", tier: "Diamond / Platinum", step: "2. Nomor yang berbeda", detail: "Pelanggan prioritas bebas panggilan biaya Rp.300,-", result: "Passed", desc: "", propose: "" },
-            { id: 10, date: "2026-07-27", greeting: "", layanan: "2. IndiHome/Eznet", bahasa: "", tier: "Reguler / Other", step: "1. Informasi dan Registrasi", detail: "Informasi dan registrasi pendaftaran IndiHome", result: "Passed", desc: "Telpon terputus, karena pulsa pelanggan tidak mencukupi.", propose: "" },
-            { id: 11, date: "2026-07-20", greeting: "", layanan: "2. IndiHome/Eznet", bahasa: "", tier: "Reguler / Other", step: "2. Pengaduan Layanan", detail: "Laporan gangguan teknis IndiHome", result: "Passed", desc: "Telpon terputus, karena pulsa pelanggan tidak mencukupi.", propose: "perlu ditambahkan Voice Feedback untuk pelanggan yang tidak pulsa tidak mencukupi" }
+        // Preset Options for GraPARI Capabilities
+        const GRAPARI_INDIHOME_CAPABILITIES = [
+            "Pasang Baru",
+            "Lacak Proses Permintaan",
+            "Cek & Bayar Tagihan IndiHome",
+            "Berhenti Langganan Sementara",
+            "Lanjutkan Langganan",
+            "Cek Kondisi Jaringan IndiHome"
         ];
 
-        // Generate sample dates for items
-        for (let i = 12; i <= 40; i++) {
-            const dayOffset = i % 15;
-            const dateStr = `2026-07-${(27 - dayOffset).toString().padStart(2, '0')}`;
-            initialDataset.push({
-                id: i,
-                date: dateStr,
-                greeting: "",
-                layanan: i % 3 === 0 ? "2. IndiHome/Eznet" : "1. Halo / Prabayar",
-                bahasa: "Bahasa",
-                tier: i % 2 === 0 ? "Reguler / Other" : "Diamond / Platinum",
-                step: `Menu Skenario Test #${i}`,
-                detail: `Verifikasi navigasi tombol ${i % 9} -> Pilihan sub-menu`,
-                result: i <= 25 ? "Passed" : "Pending",
-                desc: i === 15 ? "Ekspektasi: Harusnya terdapat wording peringatan pulsa" : "",
-                propose: i === 15 ? "Tambahkan voice feedback" : ""
-            });
-        }
+        const GRAPARI_MOBILE_CAPABILITIES = [
+            "Ganti Kartu/ Migrasi ke 4G",
+            "Cek & Bayar Tagihan Halo",
+            "Perbaikan Data Profile",
+            "Beralih ke Halo",
+            "Cek Nomor 4G Anda",
+            "Lacak Pesanan Kartu",
+            "Migrasi Esim",
+            "Beli Kartu Perdana"
+        ];
 
-        // Load data from localStorage or initialize
-        let testData = JSON.parse(localStorage.getItem('ivr_test_data')) || initialDataset;
+        // Global State - 3 Modules
+        let currentMainMenu = 'ivr'; // 'ivr', 'grapari-indihome', 'grapari-mobile'
+        let currentSubTab = 'dashboard';
+
+        let ivrData = JSON.parse(localStorage.getItem('tks_ivr_data_v3')) || [];
+        let grapariIndihomeData = JSON.parse(localStorage.getItem('tks_grapari_indihome_v3')) || [];
+        let grapariMobileData = JSON.parse(localStorage.getItem('tks_grapari_mobile_v3')) || [];
 
         let statusChartInstance = null;
         let categoryChartInstance = null;
 
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('ivr_test_data', JSON.stringify(testData));
-            updateDashboard();
-            renderTable();
+        // --- 1. CORE SYSTEM FUNCTIONS ---
+
+        function getActiveDataset() {
+            if (currentMainMenu === 'ivr') return ivrData;
+            if (currentMainMenu === 'grapari-indihome') return grapariIndihomeData;
+            return grapariMobileData;
         }
 
-        // Switch Tabs
-        function switchTab(tab) {
+        function setActiveDataset(data) {
+            if (currentMainMenu === 'ivr') {
+                ivrData = data;
+                localStorage.setItem('tks_ivr_data_v3', JSON.stringify(ivrData));
+            } else if (currentMainMenu === 'grapari-indihome') {
+                grapariIndihomeData = data;
+                localStorage.setItem('tks_grapari_indihome_v3', JSON.stringify(grapariIndihomeData));
+            } else {
+                grapariMobileData = data;
+                localStorage.setItem('tks_grapari_mobile_v3', JSON.stringify(grapariMobileData));
+            }
+        }
+
+        function switchMainMenu(menu) {
+            currentMainMenu = menu;
+
+            // Toggle Header Menu Styles
+            document.getElementById('menu-btn-ivr').className = `flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition ${menu === 'ivr' ? 'main-menu-active' : 'main-menu-inactive'}`;
+            document.getElementById('menu-btn-grapari-indihome').className = `flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition ${menu === 'grapari-indihome' ? 'main-menu-active' : 'main-menu-inactive'}`;
+            document.getElementById('menu-btn-grapari-mobile').className = `flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition ${menu === 'grapari-mobile' ? 'main-menu-active' : 'main-menu-inactive'}`;
+
+            // Header Tag Badge
+            const tag = document.getElementById('active-system-tag');
+            if (menu === 'ivr') {
+                tag.className = "px-2.5 py-1 text-xs font-semibold bg-sky-100 text-sky-800 rounded-full border border-sky-200 flex items-center gap-1";
+                tag.innerHTML = `<i data-lucide="phone-call" class="w-3 h-3"></i> Modul: Testing IVR`;
+            } else if (menu === 'grapari-indihome') {
+                tag.className = "px-2.5 py-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full border border-red-200 flex items-center gap-1";
+                tag.innerHTML = `<i data-lucide="home" class="w-3 h-3"></i> Modul: GraPARI Online IndiHome`;
+            } else {
+                tag.className = "px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200 flex items-center gap-1";
+                tag.innerHTML = `<i data-lucide="smartphone" class="w-3 h-3"></i> Modul: GraPARI Online Mobile`;
+            }
+
+            setupCategoryFilter();
+            setupTableHeaders();
+            updateDashboard();
+            renderTable();
+            lucide.createIcons();
+        }
+
+        function switchSubTab(tab) {
+            currentSubTab = tab;
             document.getElementById('view-dashboard').classList.toggle('hidden', tab !== 'dashboard');
             document.getElementById('view-data-table').classList.toggle('hidden', tab !== 'data-table');
             
@@ -400,12 +406,67 @@
             if (tab === 'data-table') renderTable();
         }
 
-        // Update Metrics & Charts
+        function setupCategoryFilter() {
+            const select = document.getElementById('filter-category');
+            select.innerHTML = '<option value="ALL">Semua Kategori</option>';
+
+            if (currentMainMenu === 'ivr') {
+                select.innerHTML += `
+                    <option value="1. Halo / Prabayar">Halo / Prabayar</option>
+                    <option value="2. IndiHome/Eznet">IndiHome / Eznet</option>
+                `;
+            } else if (currentMainMenu === 'grapari-indihome') {
+                GRAPARI_INDIHOME_CAPABILITIES.forEach(cap => select.innerHTML += `<option value="${cap}">${cap}</option>`);
+            } else {
+                GRAPARI_MOBILE_CAPABILITIES.forEach(cap => select.innerHTML += `<option value="${cap}">${cap}</option>`);
+            }
+        }
+
+        function setupTableHeaders() {
+            const thead = document.getElementById('table-head-dynamic');
+            const issueThCat = document.getElementById('issue-th-category');
+
+            if (currentMainMenu === 'ivr') {
+                issueThCat.innerText = "Layanan / Tier";
+                thead.innerHTML = `
+                    <tr>
+                        <th class="py-3 px-3 w-10 text-center">No</th>
+                        <th class="py-3 px-3 w-28">Tanggal</th>
+                        <th class="py-3 px-3 w-36">Layanan</th>
+                        <th class="py-3 px-3 w-28">Tier</th>
+                        <th class="py-3 px-3 w-40">Menu / Step</th>
+                        <th class="py-3 px-3">Detail Alur IVR</th>
+                        <th class="py-3 px-3 w-24 text-center">Hasil Test</th>
+                        <th class="py-3 px-3">Temuan Issue</th>
+                        <th class="py-3 px-3">Propose Solusi</th>
+                        <th class="py-3 px-3 w-16 text-center">Aksi</th>
+                    </tr>
+                `;
+            } else {
+                issueThCat.innerText = "Capability Fitur";
+                thead.innerHTML = `
+                    <tr>
+                        <th class="py-3 px-3 w-10 text-center">No</th>
+                        <th class="py-3 px-3 w-28">Tanggal</th>
+                        <th class="py-3 px-3 w-48">Capability</th>
+                        <th class="py-3 px-3">Wording / Step Pengetesan</th>
+                        <th class="py-3 px-3 w-24 text-center">Hasil Test</th>
+                        <th class="py-3 px-3">Temuan Issue</th>
+                        <th class="py-3 px-3">Propose Solusi</th>
+                        <th class="py-3 px-3 w-16 text-center">Aksi</th>
+                    </tr>
+                `;
+            }
+        }
+
+        // --- 2. DASHBOARD METRICS & CHARTS ---
+
         function updateDashboard() {
-            const total = testData.length;
-            const passed = testData.filter(d => d.result === 'Passed').length;
-            const failed = testData.filter(d => d.result === 'Failed').length;
-            const pending = testData.filter(d => d.result === 'Pending' || !d.result || d.result === 'Not Tested').length;
+            const dataset = getActiveDataset();
+            const total = dataset.length;
+            const passed = dataset.filter(d => d.result === 'Passed').length;
+            const failed = dataset.filter(d => d.result === 'Failed').length;
+            const pending = dataset.filter(d => d.result === 'Pending' || !d.result).length;
 
             document.getElementById('metric-total').innerText = total;
             document.getElementById('metric-passed').innerText = passed;
@@ -417,7 +478,7 @@
             
             document.getElementById('total-badge').innerText = total;
 
-            // Render Status Chart (Pie)
+            // Status Doughnut Chart
             const ctxPie = document.getElementById('statusChart').getContext('2d');
             if (statusChartInstance) statusChartInstance.destroy();
             statusChartInstance = new Chart(ctxPie, {
@@ -425,8 +486,8 @@
                 data: {
                     labels: ['Passed', 'Failed', 'Pending'],
                     datasets: [{
-                        data: [passed, failed, pending],
-                        backgroundColor: ['#10b981', '#f43f5e', '#f59e0b'],
+                        data: total === 0 ? [0, 0, 1] : [passed, failed, pending],
+                        backgroundColor: total === 0 ? ['#e2e8f0', '#e2e8f0', '#cbd5e1'] : ['#10b981', '#f43f5e', '#f59e0b'],
                         borderWidth: 2,
                         borderColor: '#ffffff'
                     }]
@@ -438,54 +499,68 @@
                 }
             });
 
-            // Render Category Chart (Bar)
+            // Category Bar Chart
             const ctxBar = document.getElementById('categoryChart').getContext('2d');
             if (categoryChartInstance) categoryChartInstance.destroy();
+
+            let barLabels = [];
+            let passedCounts = [];
+            let issueCounts = [];
+
+            if (currentMainMenu === 'ivr') {
+                document.getElementById('category-chart-title').innerText = "Hasil Test per Jenis Layanan IVR";
+                barLabels = ['Halo / Prabayar', 'IndiHome / Eznet'];
+                passedCounts = [
+                    dataset.filter(d => d.layanan && d.layanan.includes('Halo') && d.result === 'Passed').length,
+                    dataset.filter(d => d.layanan && d.layanan.includes('IndiHome') && d.result === 'Passed').length
+                ];
+                issueCounts = [
+                    dataset.filter(d => d.layanan && d.layanan.includes('Halo') && d.result !== 'Passed').length,
+                    dataset.filter(d => d.layanan && d.layanan.includes('IndiHome') && d.result !== 'Passed').length
+                ];
+            } else {
+                const capabilities = currentMainMenu === 'grapari-indihome' ? GRAPARI_INDIHOME_CAPABILITIES : GRAPARI_MOBILE_CAPABILITIES;
+                document.getElementById('category-chart-title').innerText = `Hasil Test per Capability (${currentMainMenu === 'grapari-indihome' ? 'IndiHome' : 'Mobile'})`;
+                barLabels = capabilities;
+                passedCounts = capabilities.map(c => dataset.filter(d => d.capability === c && d.result === 'Passed').length);
+                issueCounts = capabilities.map(c => dataset.filter(d => d.capability === c && d.result !== 'Passed').length);
+            }
+
             categoryChartInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: ['Halo / Prabayar', 'IndiHome / Eznet'],
+                    labels: barLabels,
                     datasets: [
-                        {
-                            label: 'Passed',
-                            data: [
-                                testData.filter(d => d.layanan.includes('Halo') && d.result === 'Passed').length,
-                                testData.filter(d => d.layanan.includes('IndiHome') && d.result === 'Passed').length
-                            ],
-                            backgroundColor: '#10b981'
-                        },
-                        {
-                            label: 'Pending / Issue',
-                            data: [
-                                testData.filter(d => d.layanan.includes('Halo') && d.result !== 'Passed').length,
-                                testData.filter(d => d.layanan.includes('IndiHome') && d.result !== 'Passed').length
-                            ],
-                            backgroundColor: '#f59e0b'
-                        }
+                        { label: 'Passed', data: passedCounts, backgroundColor: '#10b981' },
+                        { label: 'Pending / Failed', data: issueCounts, backgroundColor: '#f59e0b' }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
                     plugins: { legend: { position: 'bottom' } }
                 }
             });
 
-            // Render Issue Table
+            // Issue Table
             const issueBody = document.getElementById('issue-table-body');
             issueBody.innerHTML = '';
-            const issues = testData.filter(d => d.desc || d.propose);
+            const issues = dataset.filter(d => d.desc || d.propose || d.result === 'Failed');
             
             if (issues.length === 0) {
-                issueBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Tidak ada temuan masalah atau usulan perbaikan tercatat.</td></tr>`;
+                issueBody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400">Belum ada temuan masalah atau catatan perbaikan. Klik <strong>"Catat Hasil Test"</strong> untuk mulai menambah data.</td></tr>`;
             } else {
                 issues.forEach((item, idx) => {
                     const tr = document.createElement('tr');
                     tr.className = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60';
+                    const categoryCol = currentMainMenu === 'ivr' 
+                        ? `${item.layanan || '-'} <br><span class="text-[10px] text-slate-400">${item.tier || ''}</span>`
+                        : `<span class="font-semibold text-slate-700">${item.capability || '-'}</span>`;
+
                     tr.innerHTML = `
                         <td class="py-2.5 px-4 text-center font-medium text-slate-500">${idx + 1}</td>
-                        <td class="py-2.5 px-4 font-medium text-slate-700">${item.layanan || '-'} <br><span class="text-[10px] text-slate-400">${item.tier || ''}</span></td>
+                        <td class="py-2.5 px-4 font-medium">${categoryCol}</td>
                         <td class="py-2.5 px-4 font-semibold text-slate-800">${item.step}</td>
                         <td class="py-2.5 px-4 text-rose-700 bg-rose-50/50 rounded">${item.desc || '-'}</td>
                         <td class="py-2.5 px-4 text-sky-800 bg-sky-50/50 rounded">${item.propose || '-'}</td>
@@ -497,32 +572,36 @@
             lucide.createIcons();
         }
 
-        // Toggle Sort Date Header Click
-        function toggleSortDate() {
-            const sortSelect = document.getElementById('sort-date');
-            sortSelect.value = sortSelect.value === 'DESC' ? 'ASC' : 'DESC';
-            renderTable();
-        }
+        // --- 3. DATA TABLE RENDER ---
 
-        // Render Interactive Main Table with Sort & Filter
         function renderTable() {
             const body = document.getElementById('main-table-body');
             body.innerHTML = '';
 
+            const dataset = getActiveDataset();
             const search = document.getElementById('search-input').value.toLowerCase();
             const filterRes = document.getElementById('filter-result').value;
-            const filterLay = document.getElementById('filter-layanan').value;
+            const filterCat = document.getElementById('filter-category').value;
             const sortDateDir = document.getElementById('sort-date').value;
 
             // Filter logic
-            let filtered = testData.filter(item => {
-                const matchSearch = (item.step + item.detail + item.desc + item.propose).toLowerCase().includes(search);
+            let filtered = dataset.filter(item => {
+                const searchStr = ((item.step || '') + (item.detail || '') + (item.desc || '') + (item.propose || '') + (item.capability || '') + (item.layanan || '')).toLowerCase();
+                const matchSearch = searchStr.includes(search);
                 const matchRes = filterRes === 'ALL' || item.result === filterRes || (filterRes === 'Pending' && item.result !== 'Passed' && item.result !== 'Failed');
-                const matchLay = filterLay === 'ALL' || item.layanan.includes(filterLay.replace('1. ', '').replace('2. ', ''));
-                return matchSearch && matchRes && matchLay;
+                
+                let matchCat = true;
+                if (filterCat !== 'ALL') {
+                    if (currentMainMenu === 'ivr') {
+                        matchCat = item.layanan && item.layanan.includes(filterCat.replace('1. ', '').replace('2. ', ''));
+                    } else {
+                        matchCat = item.capability === filterCat;
+                    }
+                }
+                return matchSearch && matchRes && matchCat;
             });
 
-            // Sort logic by Date
+            // Sort logic
             filtered.sort((a, b) => {
                 const dateA = new Date(a.date || '1970-01-01');
                 const dateB = new Date(b.date || '1970-01-01');
@@ -532,29 +611,47 @@
             document.getElementById('filtered-count').innerText = filtered.length;
 
             if (filtered.length === 0) {
-                body.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-400">Data tidak ditemukan.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="10" class="py-12 text-center text-slate-400">Database kosong / Data tidak ditemukan. Klik tombol <strong>"Catat Hasil Test"</strong> untuk menginput data baru.</td></tr>`;
                 return;
             }
 
             filtered.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white hover:bg-slate-50' : 'bg-slate-50/40 hover:bg-slate-50';
-                tr.innerHTML = `
-                    <td class="py-3 px-3 text-center text-slate-500 font-medium">${index + 1}</td>
-                    <td class="py-3 px-3 whitespace-nowrap font-medium text-slate-700 bg-amber-50/30 rounded">${item.date || '-'}</td>
-                    <td class="py-3 px-3 font-medium text-slate-700">${item.layanan || '-'}</td>
-                    <td class="py-3 px-3 text-slate-500">${item.tier || '-'}</td>
-                    <td class="py-3 px-3 font-semibold text-slate-800">${item.step}</td>
-                    <td class="py-3 px-3 text-slate-600 max-w-xs truncate" title="${item.detail}">${item.detail || '-'}</td>
-                    <td class="py-3 px-3 text-center">${getStatusBadge(item.result)}</td>
-                    <td class="py-3 px-3 text-rose-600 max-w-xs truncate" title="${item.desc}">${item.desc || '-'}</td>
-                    <td class="py-3 px-3 text-sky-700 max-w-xs truncate" title="${item.propose}">${item.propose || '-'}</td>
-                    <td class="py-3 px-3 text-center">
-                        <button onclick="editTestCase(${item.id})" class="p-1.5 text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded transition" title="Edit">
-                            <i data-lucide="edit-2" class="w-4 h-4"></i>
-                        </button>
-                    </td>
-                `;
+                
+                if (currentMainMenu === 'ivr') {
+                    tr.innerHTML = `
+                        <td class="py-3 px-3 text-center text-slate-500 font-medium">${index + 1}</td>
+                        <td class="py-3 px-3 whitespace-nowrap font-medium text-slate-700 bg-amber-50/30 rounded">${item.date || '-'}</td>
+                        <td class="py-3 px-3 font-medium text-slate-700">${item.layanan || '-'}</td>
+                        <td class="py-3 px-3 text-slate-500">${item.tier || '-'}</td>
+                        <td class="py-3 px-3 font-semibold text-slate-800">${item.step}</td>
+                        <td class="py-3 px-3 text-slate-600 max-w-xs truncate" title="${item.detail}">${item.detail || '-'}</td>
+                        <td class="py-3 px-3 text-center">${getStatusBadge(item.result)}</td>
+                        <td class="py-3 px-3 text-rose-600 max-w-xs truncate" title="${item.desc}">${item.desc || '-'}</td>
+                        <td class="py-3 px-3 text-sky-700 max-w-xs truncate" title="${item.propose}">${item.propose || '-'}</td>
+                        <td class="py-3 px-3 text-center">
+                            <button onclick="editTestCase(${item.id})" class="p-1.5 text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded transition">
+                                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td class="py-3 px-3 text-center text-slate-500 font-medium">${index + 1}</td>
+                        <td class="py-3 px-3 whitespace-nowrap font-medium text-slate-700 bg-amber-50/30 rounded">${item.date || '-'}</td>
+                        <td class="py-3 px-3 font-semibold text-slate-800">${item.capability || '-'}</td>
+                        <td class="py-3 px-3 text-slate-700">${item.step}</td>
+                        <td class="py-3 px-3 text-center">${getStatusBadge(item.result)}</td>
+                        <td class="py-3 px-3 text-rose-600 max-w-xs truncate" title="${item.desc}">${item.desc || '-'}</td>
+                        <td class="py-3 px-3 text-sky-700 max-w-xs truncate" title="${item.propose}">${item.propose || '-'}</td>
+                        <td class="py-3 px-3 text-center">
+                            <button onclick="editTestCase(${item.id})" class="p-1.5 text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded transition">
+                                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    `;
+                }
                 body.appendChild(tr);
             });
             lucide.createIcons();
@@ -570,77 +667,87 @@
             }
         }
 
-        // Export Function to Excel (.xlsx) using SheetJS
-        function exportToExcel(type = 'all') {
-            let exportData = [];
-            
-            if (type === 'issues') {
-                const issues = testData.filter(d => d.desc || d.propose);
-                exportData = issues.map((item, index) => ({
-                    "No": index + 1,
-                    "Tanggal": item.date || "-",
-                    "Jenis Layanan": item.layanan || "-",
-                    "Tier": item.tier || "-",
-                    "Menu / Step": item.step || "-",
-                    "Deskripsi Issue": item.desc || "-",
-                    "Usulan Solusi": item.propose || "-",
-                    "Status": item.result || "Pending"
-                }));
-            } else {
-                exportData = testData.map((item, index) => ({
-                    "No": index + 1,
-                    "Tanggal Testing": item.date || "-",
-                    "Jenis Layanan": item.layanan || "-",
-                    "Tier Pelanggan": item.tier || "-",
-                    "Menu / Step IVR": item.step || "-",
-                    "Detail Navigasi": item.detail || "-",
-                    "Hasil Test Case": item.result || "Pending",
-                    "Deskripsi Temuan / Issue": item.desc || "-",
-                    "Rekomendasi / Propose": item.propose || "-"
-                }));
-            }
+        // --- 4. MODAL FORM ACTIONS & DYNAMIC FIELDS ---
 
-            // Create worksheet and workbook
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, type === 'issues' ? "Hasil Temuan Issue" : "Data Pengetesan IVR");
-
-            // Save file
-            const filename = type === 'issues' ? `Laporan_Temuan_Issue_IVR_${new Date().toISOString().split('T')[0]}.xlsx` : `Laporan_Hasil_Testing_IVR_${new Date().toISOString().split('T')[0]}.xlsx`;
-            XLSX.writeFile(workbook, filename);
-        }
-
-        // Modal Operations
         function openAddModal() {
-            document.getElementById('modal-title').innerText = 'Form Catat Hasil Test Baru';
+            let label = 'IVR';
+            if (currentMainMenu === 'grapari-indihome') label = 'GraPARI IndiHome';
+            if (currentMainMenu === 'grapari-mobile') label = 'GraPARI Mobile';
+
+            document.getElementById('modal-title').innerText = `Catat Hasil Test Baru (${label})`;
             document.getElementById('form-id').value = '';
             document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('form-result').value = 'Passed';
-            document.getElementById('form-layanan').value = '1. Halo / Prabayar';
-            document.getElementById('form-tier').value = 'Reguler / Other';
             document.getElementById('form-step').value = '';
-            document.getElementById('form-detail').value = '';
             document.getElementById('form-desc').value = '';
             document.getElementById('form-propose').value = '';
-            
+
+            buildDynamicFormFields();
             document.getElementById('test-modal').classList.remove('hidden');
         }
 
+        function buildDynamicFormFields(item = null) {
+            const container = document.getElementById('dynamic-form-fields');
+            container.innerHTML = '';
+
+            if (currentMainMenu === 'ivr') {
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Layanan</label>
+                            <select id="form-layanan" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <option value="1. Halo / Prabayar">Halo / Prabayar</option>
+                                <option value="2. IndiHome/Eznet">IndiHome / Eznet</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Tier Pelanggan</label>
+                            <select id="form-tier" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <option value="Reguler / Other">Reguler / Other</option>
+                                <option value="Diamond / Platinum">Diamond / Platinum</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Detail Alur Navigasi IVR</label>
+                        <input type="text" id="form-detail" placeholder="Cth: Press 1 -> Info PUK -> Verifikasi KTP" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                `;
+                if (item) {
+                    if (item.layanan) document.getElementById('form-layanan').value = item.layanan;
+                    if (item.tier) document.getElementById('form-tier').value = item.tier;
+                    if (item.detail) document.getElementById('form-detail').value = item.detail;
+                }
+            } else {
+                const capabilities = currentMainMenu === 'grapari-indihome' ? GRAPARI_INDIHOME_CAPABILITIES : GRAPARI_MOBILE_CAPABILITIES;
+                let optionsHtml = capabilities.map(c => `<option value="${c}">${c}</option>`).join('');
+
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Capability / Fitur</label>
+                        <select id="form-capability" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                `;
+                if (item && item.capability) document.getElementById('form-capability').value = item.capability;
+            }
+        }
+
         function editTestCase(id) {
-            const item = testData.find(d => d.id === id);
+            const dataset = getActiveDataset();
+            const item = dataset.find(d => d.id === id);
             if (!item) return;
 
-            document.getElementById('modal-title').innerText = 'Edit Results & Feedback Test Case';
+            document.getElementById('modal-title').innerText = `Edit Test Case (${currentMainMenu.toUpperCase()})`;
             document.getElementById('form-id').value = item.id;
             document.getElementById('form-date').value = item.date || new Date().toISOString().split('T')[0];
             document.getElementById('form-result').value = item.result || 'Passed';
-            document.getElementById('form-layanan').value = item.layanan || '';
-            document.getElementById('form-tier').value = item.tier || '';
             document.getElementById('form-step').value = item.step || '';
-            document.getElementById('form-detail').value = item.detail || '';
             document.getElementById('form-desc').value = item.desc || '';
             document.getElementById('form-propose').value = item.propose || '';
 
+            buildDynamicFormFields(item);
             document.getElementById('test-modal').classList.remove('hidden');
         }
 
@@ -650,53 +757,108 @@
 
         function saveTestCase(e) {
             e.preventDefault();
+            const dataset = getActiveDataset();
             const idVal = document.getElementById('form-id').value;
             
-            const newItem = {
+            let newItem = {
                 id: idVal ? parseInt(idVal) : Date.now(),
                 date: document.getElementById('form-date').value,
                 result: document.getElementById('form-result').value,
-                layanan: document.getElementById('form-layanan').value,
-                tier: document.getElementById('form-tier').value,
                 step: document.getElementById('form-step').value,
-                detail: document.getElementById('form-detail').value,
                 desc: document.getElementById('form-desc').value,
                 propose: document.getElementById('form-propose').value
             };
 
-            if (idVal) {
-                const idx = testData.findIndex(d => d.id === parseInt(idVal));
-                if (idx !== -1) testData[idx] = newItem;
+            if (currentMainMenu === 'ivr') {
+                newItem.layanan = document.getElementById('form-layanan').value;
+                newItem.tier = document.getElementById('form-tier').value;
+                newItem.detail = document.getElementById('form-detail').value;
             } else {
-                testData.unshift(newItem);
+                newItem.capability = document.getElementById('form-capability').value;
             }
 
-            saveData();
+            if (idVal) {
+                const idx = dataset.findIndex(d => d.id === parseInt(idVal));
+                if (idx !== -1) dataset[idx] = newItem;
+            } else {
+                dataset.unshift(newItem);
+            }
+
+            setActiveDataset(dataset);
+            updateDashboard();
+            renderTable();
             closeModal();
         }
 
+        // --- 5. EXPORT & CLEAR DATA ---
+
+        function exportToExcel(type = 'all') {
+            const dataset = getActiveDataset();
+            if (dataset.length === 0) {
+                alert("Data masih kosong, belum ada test case yang dicatat.");
+                return;
+            }
+
+            let exportData = [];
+
+            if (currentMainMenu === 'ivr') {
+                exportData = dataset.map((item, index) => ({
+                    "No": index + 1,
+                    "Tanggal Testing": item.date || "-",
+                    "Jenis Layanan": item.layanan || "-",
+                    "Tier Pelanggan": item.tier || "-",
+                    "Menu / Step IVR": item.step || "-",
+                    "Detail Navigasi": item.detail || "-",
+                    "Hasil Test Case": item.result || "Pending",
+                    "Deskripsi Issue": item.desc || "-",
+                    "Rekomendasi Propose": item.propose || "-"
+                }));
+            } else {
+                exportData = dataset.map((item, index) => ({
+                    "No": index + 1,
+                    "Tanggal Testing": item.date || "-",
+                    "Capability": item.capability || "-",
+                    "Wording / Step Pengetesan": item.step || "-",
+                    "Hasil Test Case": item.result || "Pending",
+                    "Deskripsi Issue": item.desc || "-",
+                    "Rekomendasi Propose": item.propose || "-"
+                }));
+            }
+
+            if (type === 'issues') {
+                exportData = exportData.filter(d => d["Deskripsi Issue"] !== "-" || d["Rekomendasi Propose"] !== "-" || d["Hasil Test Case"] === "Failed");
+            }
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Hasil Testing");
+
+            const filename = `Laporan_QA_${currentMainMenu.toUpperCase()}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(workbook, filename);
+        }
+
         function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(testData, null, 2));
+            const dataset = getActiveDataset();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataset, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `IVR_Testing_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            downloadAnchor.setAttribute("download", `QA_Backup_${currentMainMenu.toUpperCase()}_${new Date().toISOString().split('T')[0]}.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
         }
 
-        function resetData() {
-            if (confirm("Apakah Anda yakin ingin mengembalikan data ke kondisi awal dari file Excel?")) {
-                testData = initialDataset;
-                saveData();
+        function clearAllData() {
+            if (confirm(`Apakah Anda yakin ingin MENGHAPUS SELURUH DATA pengetesan ${currentMainMenu.toUpperCase()}?`)) {
+                setActiveDataset([]);
+                updateDashboard();
+                renderTable();
             }
         }
 
         // Initialize App
         window.onload = function() {
-            lucide.createIcons();
-            updateDashboard();
-            renderTable();
+            switchMainMenu('ivr');
         };
     </script>
 </body>

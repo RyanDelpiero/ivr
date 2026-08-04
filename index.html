@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .main-menu-active { background-color: #0284c7; color: #ffffff; font-weight: 600; shadow: sm; }
+        .main-menu-active { background-color: #0284c7; color: #ffffff; font-weight: 600; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
         .main-menu-inactive { color: #94a3b8; }
         .main-menu-inactive:hover { background-color: #1e293b; color: #ffffff; }
         .tab-active { border-bottom: 3px solid #0284c7; color: #0284c7; font-weight: 600; }
@@ -446,7 +446,6 @@
             ]
         };
 
-        // 1. Perbaikan loadStorageSafely agar tahan terhadap proteksi keamanan mobile
         function loadStorageSafely(keyPrefix) {
             try {
                 const keys = [
@@ -469,7 +468,7 @@
             }
             return [];
         }
-        // 2. Perbaikan Pemanggilan Lucide Icons (Cek ketersediaan library)
+
         function safeCreateIcons() {
             if (typeof lucide !== 'undefined' && lucide.createIcons) {
                 lucide.createIcons();
@@ -662,7 +661,7 @@
                 `;
             }
 
-            lucide.createIcons();
+            safeCreateIcons();
             document.getElementById('journey-modal').classList.remove('hidden');
         }
 
@@ -727,7 +726,7 @@
             setupTableHeaders();
             updateDashboard();
             renderTable();
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         function switchSubTab(tab) {
@@ -961,7 +960,7 @@
                 });
             }
 
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         function renderJourneyImpactCards(dataset) {
@@ -1111,7 +1110,7 @@
                 }
                 body.appendChild(tr);
             });
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         function getStatusBadge(result) {
@@ -1125,8 +1124,6 @@
             if (severity === 'Major / Functional') return `<span class="px-2 py-0.5 text-[9px] font-bold bg-amber-100 text-amber-800 rounded-md border border-amber-300">Major</span>`;
             return `<span class="px-2 py-0.5 text-[9px] font-medium bg-slate-100 text-slate-600 rounded-md border border-slate-200">Minor</span>`;
         }
-
-        // --- 4. RECORD MODAL ACTIONS & AUTOMATIC FILE COMPRESSION LOGIC ---
 
         function openAddModal() {
             let label = 'IVR';
@@ -1163,7 +1160,7 @@
                 labelText.innerHTML = `<i data-lucide="image" class="w-4 h-4 text-sky-600"></i> Evidence Image Screen Capture`;
                 hintText.innerText = "Auto-Compress Active (JPEG 60%)";
             }
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         async function handleFileUpload(input) {
@@ -1244,14 +1241,12 @@
             });
         }
 
-        // FUNGSI KOMPRESI VIDEO YANG SUDAH MENJAGA KEBERADAAN SUARA (AUDIO TRACK)
         function compressVideo(file) {
             return new Promise((resolve, reject) => {
                 const video = document.createElement('video');
                 const objectUrl = URL.createObjectURL(file);
                 video.src = objectUrl;
                 
-                // Muted false & Volume 0 agar audio stream bisa diekstrak tanpa suara keras di speaker
                 video.muted = false;
                 video.volume = 0;
                 video.playsInline = true;
@@ -1275,10 +1270,8 @@
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
 
-                    // Ambil Video Stream dari Canvas (15 FPS)
                     const canvasStream = canvas.captureStream(15);
                     
-                    // Ambil Audio Track dari Video Asli
                     let audioTrack = null;
                     try {
                         const streamFromVideo = video.captureStream ? video.captureStream() : video.mozCaptureStream();
@@ -1289,7 +1282,6 @@
                         console.warn("Gagal mengambil audio track langsung dari video:", e);
                     }
 
-                    // Gabungkan Video Canvas + Audio Asli
                     const combinedStream = new MediaStream();
                     canvasStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
                     if (audioTrack) {
@@ -1361,7 +1353,7 @@
                     </div>
                 `;
             }
-            lucide.createIcons();
+            safeCreateIcons();
         }
 
         function removeEvidence() {
@@ -1386,7 +1378,7 @@
                 body.innerHTML = `<img src="${item.evidence.data}" class="max-w-full max-h-[70vh] object-contain rounded-xl shadow-lg">`;
             }
 
-            lucide.createIcons();
+            safeCreateIcons();
             document.getElementById('media-modal').classList.remove('hidden');
         }
 
@@ -1779,7 +1771,7 @@
             try {
                 switchMainMenu('ivr');
             } catch (err) {
-                console.error("Gagal melakukan inisialisasi awal di mobile:", err);
+                console.error("Gagal melakukan inisialisasi awal:", err);
             }
         };
     </script>

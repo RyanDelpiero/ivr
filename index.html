@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Monitoring & Testing QA Telkomsel</title>
+    <title>AVINDHA - Automated Verification Dashboard Assurance</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
@@ -31,34 +31,35 @@
                         <i data-lucide="shield-check" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-lg leading-tight">QA Monitoring Dashboard</h1>
-                        <p class="text-xs text-slate-400">Telkomsel Quality Assurance System</p>
+                        <h1 class="font-bold text-lg leading-tight">AVINDHA Dashboard</h1>
+                        <p class="text-xs text-slate-400">Automated Verification Dashboard Assurance</p>
                     </div>
                 </div>
 
-                <!-- NAVIGATION SWITCHER (IVR | GraPARI IndiHome | GraPARI Mobile) -->
+                <!-- NAVIGATION SWITCHER -->
                 <nav class="hidden md:flex bg-slate-800 p-1 rounded-xl border border-slate-700/60 ml-4 space-x-1">
                     <button onclick="switchMainMenu('ivr')" id="menu-btn-ivr" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-active">
                         <i data-lucide="phone-call" class="w-4 h-4"></i> IVR
                     </button>
                     <button onclick="switchMainMenu('grapari-indihome')" id="menu-btn-grapari-indihome" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-inactive">
-                        <i data-lucide="home" class="w-4 h-4"></i> GraPARI IndiHome
+                        <i data-lucide="home" class="w-4 h-4"></i> GraPARI Online IndiHome
                     </button>
                     <button onclick="switchMainMenu('grapari-mobile')" id="menu-btn-grapari-mobile" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-inactive">
-                        <i data-lucide="smartphone" class="w-4 h-4"></i> GraPARI Mobile
+                        <i data-lucide="smartphone" class="w-4 h-4"></i> GraPARI Online Mobile
                     </button>
                 </nav>
             </div>
 
+            <!-- BUTTON ACTION HEADER: ICON ONLY -->
             <div class="flex items-center space-x-2">
-                <button onclick="exportToExcel()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-sm">
-                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export Excel (.xlsx)
+                <button onclick="exportToExcel()" title="Export Excel (.xlsx)" class="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-sm flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
                 </button>
-                <button onclick="exportJSON()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition">
-                    <i data-lucide="download" class="w-4 h-4"></i> Backup JSON
+                <button onclick="exportJSON()" title="Backup Data JSON" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center justify-center">
+                    <i data-lucide="arrow-down" class="w-4 h-4"></i>
                 </button>
-                <button onclick="clearAllData()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-900/40 text-red-300 hover:bg-red-900/70 border border-red-800/50 rounded-lg transition">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i> Clear Data
+                <button onclick="clearAllData()" title="Clear All Data" class="p-2.5 bg-red-900/40 text-red-300 hover:bg-red-900/70 border border-red-800/50 rounded-lg transition flex items-center justify-center">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
@@ -77,11 +78,15 @@
             </div>
 
             <div class="flex items-center gap-3">
+                <button onclick="openJourneyModal()" id="btn-journey-map" class="py-1.5 px-3 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 rounded-lg flex items-center gap-1.5 transition shadow-sm">
+                    <i data-lucide="git-fork" class="w-4 h-4 text-amber-400"></i> <span id="btn-journey-map-label">IVR Journey Map</span>
+                </button>
+
                 <span id="active-system-tag" class="px-2.5 py-1 text-xs font-semibold bg-sky-100 text-sky-800 rounded-full border border-sky-200 flex items-center gap-1">
                     <i data-lucide="phone-call" class="w-3 h-3"></i> Modul: Testing IVR
                 </span>
                 <button onclick="openAddModal()" class="py-2 px-4 text-xs font-semibold bg-sky-600 hover:bg-sky-700 text-white rounded-lg flex items-center gap-1.5 transition shadow-sm">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Catat Hasil Test
+                    <i data-lucide="plus" class="w-4 h-4"></i> Record Test
                 </button>
             </div>
         </div>
@@ -92,6 +97,34 @@
 
         <!-- VIEW 1: DASHBOARD OVERVIEW -->
         <div id="view-dashboard" class="space-y-6">
+
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-sky-900 text-white p-5 rounded-2xl shadow-md border border-slate-700/60 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="p-4 bg-sky-500/20 border border-sky-400/30 rounded-2xl text-sky-400">
+                        <i data-lucide="activity" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base font-bold tracking-wide">System Health Index</h2>
+                            <span id="sla-readiness-badge" class="px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 uppercase tracking-wider">
+                                🟢 SLA EXCELLENT
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1" id="health-description">Module health percentage based on functional testing results.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-6 bg-slate-950/40 px-6 py-3 rounded-xl border border-white/10 w-full md:w-auto justify-between md:justify-end">
+                    <div class="text-center">
+                        <p class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Health Score</p>
+                        <p class="text-2xl font-black text-sky-400 mt-0.5" id="metric-health-score">0%</p>
+                    </div>
+                    <div class="h-8 w-px bg-slate-700"></div>
+                    <div class="text-center">
+                        <p class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Critical Defects</p>
+                        <p class="text-2xl font-black text-rose-400 mt-0.5" id="metric-critical-count">0</p>
+                    </div>
+                </div>
+            </div>
             
             <!-- Summary Metrics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -99,7 +132,7 @@
                     <div>
                         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Test Cases</p>
                         <h3 class="text-2xl font-bold text-slate-900 mt-1" id="metric-total">0</h3>
-                        <p class="text-xs text-slate-400 mt-1">Skenario terdaftar</p>
+                        <p class="text-xs text-slate-400 mt-1">Listed Scenario</p>
                     </div>
                     <div class="p-3 bg-slate-100 rounded-lg text-slate-600">
                         <i data-lucide="file-text" class="w-6 h-6"></i>
@@ -110,7 +143,7 @@
                     <div>
                         <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Passed</p>
                         <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="metric-passed">0</h3>
-                        <p class="text-xs text-emerald-600/70 mt-1" id="metric-passed-pct">0% dari total</p>
+                        <p class="text-xs text-emerald-600/70 mt-1" id="metric-passed-pct">0% of the total</p>
                     </div>
                     <div class="p-3 bg-emerald-50 rounded-lg text-emerald-600">
                         <i data-lucide="check-circle-2" class="w-6 h-6"></i>
@@ -121,7 +154,7 @@
                     <div>
                         <p class="text-xs font-semibold text-rose-600 uppercase tracking-wider">Failed</p>
                         <h3 class="text-2xl font-bold text-rose-600 mt-1" id="metric-failed">0</h3>
-                        <p class="text-xs text-rose-600/70 mt-1" id="metric-failed-pct">0% dari total</p>
+                        <p class="text-xs text-rose-600/70 mt-1" id="metric-failed-pct">0% of the total</p>
                     </div>
                     <div class="p-3 bg-rose-50 rounded-lg text-rose-600">
                         <i data-lucide="x-circle" class="w-6 h-6"></i>
@@ -132,7 +165,7 @@
                     <div>
                         <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Pending / Untested</p>
                         <h3 class="text-2xl font-bold text-amber-600 mt-1" id="metric-pending">0</h3>
-                        <p class="text-xs text-amber-600/70 mt-1" id="metric-pending-pct">0% dari total</p>
+                        <p class="text-xs text-amber-600/70 mt-1" id="metric-pending-pct">0% of the total</p>
                     </div>
                     <div class="p-3 bg-amber-50 rounded-lg text-amber-600">
                         <i data-lucide="clock" class="w-6 h-6"></i>
@@ -142,17 +175,15 @@
 
             <!-- Visual Charts Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Status Distribution Chart -->
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                     <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
-                        <i data-lucide="pie-chart" class="w-4 h-4 text-sky-600"></i> Persentase Hasil Pengetesan
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-sky-600"></i> Percentage of Test Results
                     </h3>
                     <div class="h-64 flex items-center justify-center">
                         <canvas id="statusChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Category / Capability Breakdown Chart -->
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
                     <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
                         <i data-lucide="bar-chart-3" class="w-4 h-4 text-sky-600"></i> <span id="category-chart-title">Hasil per Layanan</span>
@@ -163,34 +194,35 @@
                 </div>
             </div>
 
-            <!-- Priority Action Items (Issues & Recommendations) -->
+            <!-- Customer Journey Impact -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
+                    <i data-lucide="compass" class="w-4 h-4 text-sky-600"></i> Customer Journey Impact Breakdown
+                </h3>
+                <p class="text-xs text-slate-500 mb-4">Based on Customer Experience</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="journey-impact-container"></div>
+            </div>
+
+            <!-- Priority Action Items -->
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
                     <div>
                         <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i> Catatan Temuan Masalah & Usulan Perbaikan
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i> Finding Issues and Improvement Suggestions
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Daftar test case yang memerlukan perhatian khusus dari tim developer/produk</p>
+                        <p class="text-xs text-slate-500 mt-0.5">List of test cases with issue notes or improvement recommendations</p>
                     </div>
                     <button onclick="exportToExcel('issues')" class="px-3 py-1.5 text-xs font-medium bg-white hover:bg-slate-100 border border-slate-300 rounded-lg flex items-center gap-1.5 text-slate-700 shadow-sm">
-                        <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i> Unduh Tabel Temuan
+                        <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i> Unduh Tabel Temuan
                     </button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider font-semibold">
-                            <tr>
-                                <th class="py-3 px-4 w-12 text-center">No</th>
-                                <th class="py-3 px-4 w-40" id="issue-th-category">Kategori / Capability</th>
-                                <th class="py-3 px-4 w-48">Wording / Step</th>
-                                <th class="py-3 px-4">Deskripsi Temuan / Issue</th>
-                                <th class="py-3 px-4">Usulan Solusi / Propose</th>
-                                <th class="py-3 px-4 w-24 text-center">Status</th>
-                            </tr>
+                        <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider font-semibold" id="issue-table-head">
+                            <!-- Header di-render dinamis oleh JavaScript -->
                         </thead>
-                        <tbody id="issue-table-body" class="divide-y divide-slate-200">
-                            <!-- Populated dynamically -->
-                        </tbody>
+                        <tbody id="issue-table-body" class="divide-y divide-slate-200"></tbody>
                     </table>
                 </div>
             </div>
@@ -200,26 +232,25 @@
         <!-- VIEW 2: DATA TABLE & RECORDING -->
         <div id="view-data-table" class="hidden space-y-4">
             
-            <!-- Filters & Search Bar & Sort -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
                 <div class="flex flex-1 flex-col sm:flex-row gap-3 w-full">
-                    <!-- Search input -->
                     <div class="relative flex-1">
                         <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
-                        <input type="text" id="search-input" oninput="renderTable()" placeholder="Cari capability, step, deskripsi..." class="pl-9 pr-4 py-2 w-full text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <input type="text" id="search-input" oninput="renderTable()" placeholder="Cari capability, detail alur, issue..." class="pl-9 pr-4 py-2 w-full text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
                     </div>
-                    <!-- Filter Status -->
                     <select id="filter-result" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
                         <option value="ALL">Semua Status</option>
                         <option value="Passed">Passed</option>
                         <option value="Failed">Failed</option>
                         <option value="Pending">Pending / Untested</option>
                     </select>
-                    <!-- Dynamic Filter Category -->
-                    <select id="filter-category" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                        <!-- Populated dynamically -->
+                    <select id="filter-severity" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="ALL">Semua Severity</option>
+                        <option value="Critical / Blocker">Critical / Blocker</option>
+                        <option value="Major / Functional">Major / Functional</option>
+                        <option value="Minor / Cosmetic">Minor / Cosmetic</option>
                     </select>
-                    <!-- Sort by Date -->
+                    <select id="filter-category" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none"></select>
                     <select id="sort-date" onchange="renderTable()" class="px-3 py-2 text-xs border border-amber-300 bg-amber-50/50 text-slate-700 font-semibold rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none flex items-center">
                         <option value="DESC">📅 Tanggal Terbaru</option>
                         <option value="ASC">📅 Tanggal Terlama</option>
@@ -230,7 +261,7 @@
                         Total: <strong id="filtered-count" class="text-slate-800">0</strong> item
                     </span>
                     <button onclick="exportToExcel('all')" class="px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-1.5 transition shadow-sm">
-                        <i data-lucide="download" class="w-3.5 h-3.5"></i> Download Excel
+                        <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i> Download Excel
                     </button>
                 </div>
             </div>
@@ -239,12 +270,8 @@
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
                     <table class="w-full text-left text-xs relative">
-                        <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-wider sticky top-0 z-10" id="table-head-dynamic">
-                            <!-- Populated dynamically based on Active Menu -->
-                        </thead>
-                        <tbody id="main-table-body" class="divide-y divide-slate-200">
-                            <!-- Populated dynamically -->
-                        </tbody>
+                        <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-wider sticky top-0 z-10" id="table-head-dynamic"></thead>
+                        <tbody id="main-table-body" class="divide-y divide-slate-200"></tbody>
                     </table>
                 </div>
             </div>
@@ -253,20 +280,45 @@
 
     </main>
 
-    <!-- MODAL FORM: TAMBAH / EDIT TEST CASE -->
+    <!-- MODAL 1: ADAPTIVE JOURNEY MAP REFERENCE -->
+    <div id="journey-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 text-slate-100 rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-red-600 text-white rounded-lg">
+                        <i data-lucide="git-fork" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-white" id="modal-journey-title">IVR Journey Map & Testing Matrix</h3>
+                        <p class="text-[11px] text-slate-400">Panduan Referensi Alur Navigasi & Percabangan Skenario QA Telkomsel</p>
+                    </div>
+                </div>
+                <button onclick="closeJourneyModal()" class="text-slate-400 hover:text-white transition p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-6 flex-1 text-xs" id="modal-journey-content"></div>
+            <div class="px-6 py-3 bg-slate-800 border-t border-slate-700 flex justify-end">
+                <button onclick="closeJourneyModal()" class="px-4 py-1.5 text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">Tutup Panduan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: FORM RECORD TEST CASE -->
     <div id="test-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="px-6 py-4 bg-slate-900 text-white flex justify-between items-center">
                 <h3 id="modal-title" class="font-bold text-sm flex items-center gap-2">
-                    <i data-lucide="edit-3" class="w-4 h-4"></i> Form Catat Hasil Test
+                    <i data-lucide="edit-3" class="w-4 h-4"></i> Form Record Test
                 </h3>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
             <form id="modal-form" onsubmit="saveTestCase(event)" class="p-6 space-y-4 overflow-y-auto flex-1">
                 <input type="hidden" id="form-id">
+                <input type="hidden" id="form-evidence-data">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal Testing</label>
                         <input type="date" id="form-date" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -279,31 +331,63 @@
                             <option value="Pending" class="text-amber-600 font-bold">Pending / Untested</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Severity</label>
+                        <select id="form-severity" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none font-semibold">
+                            <option value="Minor / Cosmetic">Minor / Cosmetic</option>
+                            <option value="Major / Functional">Major / Functional</option>
+                            <option value="Critical / Blocker" class="text-rose-600 font-bold">Critical / Blocker</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Dynamic Form Fields Container -->
-                <div id="dynamic-form-fields" class="space-y-4">
-                    <!-- Injected via JavaScript -->
+                <div id="dynamic-form-fields" class="space-y-4"></div>
+
+                <!-- Wording / Step -->
+                <div id="wrapper-form-step">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Wording / Step Pengetesan</label>
+                    <textarea id="form-step" rows="2" placeholder="Detail langkah pengetesan..." class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- FIELD UPLOAD EVIDENCE DENGAN STATUS KOMPRESI AUTOMATIS -->
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                    <label class="block text-xs font-bold text-slate-700 flex items-center justify-between">
+                        <span class="flex items-center gap-1.5" id="evidence-label-text">
+                            <i data-lucide="image" class="w-4 h-4 text-sky-600"></i> Evidence Testing
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-normal" id="evidence-hint-text">Auto-Compressing Active</span>
+                    </label>
+                    <input type="file" id="form-evidence-file" onchange="handleFileUpload(this)" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-100 file:text-sky-700 hover:file:bg-sky-200 transition">
+                    
+                    <!-- Progress / Status Compression Bar -->
+                    <div id="compress-loading" class="hidden p-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-[11px] font-semibold flex items-center gap-2">
+                        <div class="w-3.5 h-3.5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span id="compress-loading-text">Sedang mengompres file evidence... Mohon tunggu.</span>
+                    </div>
+
+                    <!-- Evidence Preview Container -->
+                    <div id="evidence-preview-container" class="hidden mt-2 pt-2 border-t border-slate-200 flex items-center justify-between">
+                        <div id="evidence-preview-content" class="flex items-center gap-2"></div>
+                        <button type="button" onclick="removeEvidence()" class="text-xs text-rose-600 hover:underline flex items-center gap-1 font-medium">
+                            <i data-lucide="x" class="w-3.5 h-3.5"></i> Hapus
+                        </button>
+                    </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Wording / Step Navigasi</label>
-                    <textarea id="form-step" rows="2" placeholder="Detail langkah pengetesan..." required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Deskripsi Temuan / Issue</label>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Issue</label>
                     <textarea id="form-desc" rows="2" placeholder="Tuliskan kendala jika ada..." class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Rekomendasi / Propose Solusi</label>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Propose</label>
                     <textarea id="form-propose" rows="2" placeholder="Tuliskan usulan solusi perbaikan..." class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
                 </div>
 
                 <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition">Batal</button>
-                    <button type="submit" class="px-5 py-2 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-lg transition flex items-center gap-1.5">
+                    <button type="submit" id="btn-save-submit" class="px-5 py-2 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-lg transition flex items-center gap-1.5">
                         <i data-lucide="save" class="w-4 h-4"></i> Simpan Hasil Test
                     </button>
                 </div>
@@ -311,9 +395,19 @@
         </div>
     </div>
 
+    <!-- MODAL PREVIEW EVIDENCE IMAGE / VIDEO FULL -->
+    <div id="media-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 rounded-2xl shadow-2xl overflow-hidden max-w-3xl w-full border border-slate-700 flex flex-col">
+            <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center text-white">
+                <h4 class="font-bold text-xs flex items-center gap-2" id="media-modal-title"><i data-lucide="file-media" class="w-4 h-4"></i> Evidence Media Preview</h4>
+                <button onclick="closeMediaModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-4 flex items-center justify-center bg-black/50 max-h-[75vh] overflow-auto" id="media-modal-body"></div>
+        </div>
+    </div>
+
     <!-- SCRIPT LOGIC -->
     <script>
-        // Preset Options for GraPARI Capabilities
         const GRAPARI_INDIHOME_CAPABILITIES = [
             "Pasang Baru",
             "Lacak Proses Permintaan",
@@ -334,18 +428,231 @@
             "Beli Kartu Perdana"
         ];
 
-        // Global State - 3 Modules
-        let currentMainMenu = 'ivr'; // 'ivr', 'grapari-indihome', 'grapari-mobile'
+        const JOURNEY_MAP = {
+            'grapari-mobile': [
+                { title: 'Onboarding & Acquisition', desc: 'Beli Kartu Perdana, Migrasi eSIM, Beralih ke Halo', capabilities: ['Beli Kartu Perdana', 'Migrasi Esim', 'Beralih ke Halo'] },
+                { title: 'Account & Billing', desc: 'Cek & Bayar Tagihan, Perbaikan Profile', capabilities: ['Cek & Bayar Tagihan Halo', 'Perbaikan Data Profile'] },
+                { title: 'Connectivity & Fulfillment', desc: 'Migrasi 4G, Cek 4G, Lacak Pesanan Kartu', capabilities: ['Ganti Kartu/ Migrasi ke 4G', 'Cek Nomor 4G Anda', 'Lacak Pesanan Kartu'] }
+            ],
+            'grapari-indihome': [
+                { title: 'Sales & New Install', desc: 'Pasang Baru, Lacak Permintaan', capabilities: ['Pasang Baru', 'Lacak Proses Permintaan'] },
+                { title: 'Billing & Account Care', desc: 'Cek Tagihan, Berhenti/Lanjut Langganan', capabilities: ['Cek & Bayar Tagihan IndiHome', 'Berhenti Langganan Sementara', 'Lanjutkan Langganan'] },
+                { title: 'Technical Assurance', desc: 'Cek Kondisi Jaringan IndiHome', capabilities: ['Cek Kondisi Jaringan IndiHome'] }
+            ],
+            'ivr': [
+                { title: 'Mobile & Package Care', desc: 'Pembelian Paket, Info PUK, Ganti Kartu', categories: ['1. Pembelian Paket', '2. Informasi Nomor PUK', '3. Informasi Ganti Kartu'] },
+                { title: 'Broadband & Eznet Care', desc: 'Informasi, Registrasi, Pengaduan IndiHome', categories: ['1. Informasi dan Registrasi', '2. Pengaduan Layanan'] },
+                { title: 'Complaint & Agent Escalation', desc: 'Keluhan, Talk to Officer', categories: ['4. Keluhan', '0. Berbicara dengan Officer'] }
+            ]
+        };
+
+        function loadStorageSafely(keyPrefix) {
+            const keys = [`${keyPrefix}_v11`, `${keyPrefix}_v10`, `${keyPrefix}_v9`, `${keyPrefix}_v8`, `${keyPrefix}_v7`, `${keyPrefix}_v6`, `${keyPrefix}_v5`, `${keyPrefix}_v4`, `${keyPrefix}_v3`, `${keyPrefix}_v2`, `${keyPrefix}`];
+            for (let k of keys) {
+                const val = localStorage.getItem(k);
+                if (val) {
+                    try {
+                        const parsed = JSON.parse(val);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    } catch (e) {}
+                }
+            }
+            return [];
+        }
+
+        let currentMainMenu = 'ivr';
         let currentSubTab = 'dashboard';
 
-        let ivrData = JSON.parse(localStorage.getItem('tks_ivr_data_v3')) || [];
-        let grapariIndihomeData = JSON.parse(localStorage.getItem('tks_grapari_indihome_v3')) || [];
-        let grapariMobileData = JSON.parse(localStorage.getItem('tks_grapari_mobile_v3')) || [];
+        let ivrData = loadStorageSafely('tks_ivr_data');
+        let grapariIndihomeData = loadStorageSafely('tks_grapari_indihome');
+        let grapariMobileData = loadStorageSafely('tks_grapari_mobile');
 
         let statusChartInstance = null;
         let categoryChartInstance = null;
 
-        // --- 1. CORE SYSTEM FUNCTIONS ---
+        function openJourneyModal() {
+            const titleEl = document.getElementById('modal-journey-title');
+            const contentEl = document.getElementById('modal-journey-content');
+
+            if (currentMainMenu === 'ivr') {
+                titleEl.innerText = 'IVR Journey Map & Testing Matrix';
+                contentEl.innerHTML = `
+                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/80 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+                            <span class="font-bold text-sm text-red-400 flex items-center gap-2">
+                                <i data-lucide="smartphone" class="w-4 h-4"></i> 1. Layanan Halo / Prabayar
+                            </span>
+                            <span class="text-[10px] bg-red-950/60 text-red-300 border border-red-800/50 px-2 py-0.5 rounded font-semibold">Reguler & Priority</span>
+                        </div>
+
+                        <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-700/50 space-y-1.5">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tahap Awal (Pre-Entry Node)</span>
+                            <p class="text-slate-300">Greeting IVR &rarr; Pilih Bahasa (EN / ID)</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                                <div class="p-2.5 bg-slate-900 rounded border border-amber-500/30">
+                                    <strong class="text-amber-400 block mb-0.5">👑 Tier Priority / OLO:</strong> Direct Route &rarr; Langsung terhubung ke Caroline Officer.
+                                </div>
+                                <div class="p-2.5 bg-slate-900 rounded border border-sky-500/30">
+                                    <strong class="text-sky-400 block mb-0.5">📱 Tier Reguler (Opsi Nomor):</strong>
+                                    <ul class="list-disc list-inside space-y-0.5 text-slate-300">
+                                        <li><strong>Nomor Sama:</strong> Info Biaya Rp300 + Sisa Pulsa/Masa Aktif (Prabayar) / Tagihan Berjalan (Halo).</li>
+                                        <li><strong>Nomor Beda:</strong> Input nomor target terlebih dahulu.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-sky-400 block">1. Pembelian Paket</span>
+                                <p class="text-slate-400">Putar Iklan Paket OMG &rarr; 0. Berbicara dengan Officer (Biaya Rp300)</p>
+                                <div class="pl-2 border-l-2 border-slate-700 space-y-0.5 text-[11px]">
+                                    <p>🟢 <strong>Pulsa Mencukupi:</strong> Terhubung ke Caroline Officer.</p>
+                                    <p>🔴 <strong>Pulsa Tidak Mencukupi:</strong> Telepon terputus otomatis.</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-emerald-400 block">2. Informasi Nomor PUK</span>
+                                <p class="text-slate-400">Input NIK KTP Pelanggan</p>
+                                <div class="pl-2 border-l-2 border-slate-700 space-y-0.5 text-[11px]">
+                                    <p>🟢 <strong>Verified:</strong> Info PUK &rarr; Tawarkan Survey Layanan (1-5).</p>
+                                    <p>🔴 <strong>Not Verified:</strong> Input Ulang NIK &rarr; Tawarkan Officer (Rp300).</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-amber-400 block">3. Informasi Ganti Kartu</span>
+                                <p class="text-slate-300">Putar Informasi Syarat GraPARI (KTP/KK, 3 Nomor Sering Dihubungi, M-Banking/M-Kios, Online tsel.me/gantikartu)</p>
+                                <p class="text-sky-300 font-semibold">➡️ Dihubungkan ke Caroline Officer.</p>
+                            </div>
+
+                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-rose-400 block">4. Keluhan (Biaya Rp300)</span>
+                                <div class="space-y-1 text-[11px]">
+                                    <p>🔴 <strong>1. Tidak Bisa Internet:</strong> Info Self-troubleshoot (Refresh 2G/3G/4G / Mode Pesawat) &rarr; Transfer Officer.</p>
+                                    <p>🔴 <strong>2. Tidak Bisa Aktivasi Paket:</strong> Info Self-troubleshoot (Restart HP, Batas 1x24 Jam) &rarr; Transfer Officer.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/80 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+                            <span class="font-bold text-sm text-sky-400 flex items-center gap-2"><i data-lucide="wifi" class="w-4 h-4"></i> 2. Layanan IndiHome / Eznet</span>
+                            <span class="text-[10px] bg-sky-950/60 text-sky-300 border border-sky-800/50 px-2 py-0.5 rounded font-semibold">Fixed Broadband</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 flex justify-between items-center">
+                                <div><strong class="text-slate-200 block">1. Informasi dan Registrasi</strong><span class="text-slate-400 text-[11px]">Info produk & pendaftaran baru</span></div>
+                                <span class="text-[10px] font-bold px-2 py-1 bg-sky-500/20 text-sky-300 rounded border border-sky-500/30">➡️ Officer Agent</span>
+                            </div>
+                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 flex justify-between items-center">
+                                <div><strong class="text-slate-200 block">2. Pengaduan Layanan</strong><span class="text-slate-400 text-[11px]">Laporan gangguan & tagihan</span></div>
+                                <span class="text-[10px] font-bold px-2 py-1 bg-rose-500/20 text-rose-300 rounded border border-rose-500/30">➡️ Officer Agent</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentMainMenu === 'grapari-mobile') {
+                titleEl.innerText = 'GraPARI Online Mobile - Journey Map & Testing Matrix';
+                contentEl.innerHTML = `
+                    <div class="bg-slate-800/80 rounded-xl p-5 border border-slate-700/80 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="p-2 bg-emerald-600 text-white rounded-lg"><i data-lucide="smartphone" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-white">Layanan & Informasi - GraPARI Online Mobile</h4>
+                                    <p class="text-[11px] text-slate-400">Matriks Capability & Skenario Testing Kartu Seluler</p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-semibold rounded-full">Mobile Capabilities</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-emerald-400 font-semibold text-xs block">🛒 Beli Kartu Perdana</strong>
+                                <p class="text-slate-300 text-[11px]">Pembelian Kartu Halo atau PraBayar secara online, alur verifikasi data & pengiriman fisik.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-emerald-400 font-semibold text-xs block">📱 Migrasi eSIM</strong>
+                                <p class="text-slate-300 text-[11px]">Pembelian & konversi SIM fisik ke eSIM PraBayar, Roaming, dan Turis Asing via QR Code.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-emerald-400 font-semibold text-xs block">💳 Cek & Bayar Tagihan Halo</strong>
+                                <p class="text-slate-300 text-[11px]">Validasi nomor Halo, integrasi Payment Gateway, cetak bukti pembayaran & status tagihan.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-emerald-400 font-semibold text-xs block">👤 Perbaikan Data Profile</strong>
+                                <p class="text-slate-300 text-[11px]">Pembaruan identitas pelanggan, email, alamat pengiriman, dan validasi NIK/KK.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-emerald-400 font-semibold text-xs block">🔄 Beralih ke Halo</strong>
+                                <p class="text-slate-300 text-[11px]">Proses migrasi dari layanan PraBayar ke Telkomsel Halo secara digital tanpa ganti kartu.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-emerald-400 font-semibold text-xs block">📶 Ganti Kartu / Migrasi 4G & Cek 4G</strong>
+                                <p class="text-slate-300 text-[11px]">Pengecekan kesiapan jaringan 4G/LTE perangkat & reservasi penggantian USIM 4G.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1 md:col-span-2">
+                                <strong class="text-emerald-400 font-semibold text-xs block">📦 Lacak Pesanan Kartu</strong>
+                                <p class="text-slate-300 text-[11px]">Tracking realtime status kurir & ekspedisi pengiriman fisik kartu perdana ke alamat pelanggan.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                titleEl.innerText = 'GraPARI Online IndiHome - Journey Map & Testing Matrix';
+                contentEl.innerHTML = `
+                    <div class="bg-slate-800/80 rounded-xl p-5 border border-slate-700/80 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="p-2 bg-red-600 text-white rounded-lg"><i data-lucide="home" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-white">Layanan & Informasi - GraPARI Online IndiHome</h4>
+                                    <p class="text-[11px] text-slate-400">Matriks Capability & Skenario Testing Fixed Broadband</p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 bg-red-500/20 text-red-300 border border-red-500/30 text-[10px] font-semibold rounded-full">IndiHome Capabilities</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-sky-400 font-semibold text-xs block">🏠 Pasang Baru</strong>
+                                <p class="text-slate-300 text-[11px]">Pendaftaran paket internet IndiHome/Eznet, verifikasi coverage jaringan fiber, dan jadwal teknisi.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-sky-400 font-semibold text-xs block">📍 Lacak Proses Permintaan</strong>
+                                <p class="text-slate-300 text-[11px]">Monitoring progres pasang baru, perubahan paket, dan jadwal kunjungan teknisi di lokasi.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-sky-400 font-semibold text-xs block">🧾 Cek & Bayar Tagihan IndiHome</strong>
+                                <p class="text-slate-300 text-[11px]">Inquiry tagihan bulanan IndiHome / Single Bill, riwayat transaksi, dan konfirmasi pembayaran.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-sky-400 font-semibold text-xs block">⏸️ Berhenti Langganan Sementara</strong>
+                                <p class="text-slate-300 text-[11px]">Pengajuan isolir layanan sementara atas permintaan pelanggan (temporary deactivation).</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-sky-400 font-semibold text-xs block">▶️ Lanjutkan Langganan</strong>
+                                <p class="text-slate-300 text-[11px]">Pengajuan un-isolir/buka blokir untuk mengaktifkan kembali layanan yang sempat dinonaktifkan.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-700 space-y-1">
+                                <strong class="text-sky-400 font-semibold text-xs block">📡 Cek Kondisi Jaringan IndiHome</strong>
+                                <p class="text-slate-300 text-[11px]">Pengecekan otomatis status OLT, redaman ONT, dan deteksi masalah koneksi internet pelanggan.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            lucide.createIcons();
+            document.getElementById('journey-modal').classList.remove('hidden');
+        }
+
+        function closeJourneyModal() {
+            document.getElementById('journey-modal').classList.add('hidden');
+        }
 
         function getActiveDataset() {
             if (currentMainMenu === 'ivr') return ivrData;
@@ -354,37 +661,50 @@
         }
 
         function setActiveDataset(data) {
-            if (currentMainMenu === 'ivr') {
-                ivrData = data;
-                localStorage.setItem('tks_ivr_data_v3', JSON.stringify(ivrData));
-            } else if (currentMainMenu === 'grapari-indihome') {
-                grapariIndihomeData = data;
-                localStorage.setItem('tks_grapari_indihome_v3', JSON.stringify(grapariIndihomeData));
-            } else {
-                grapariMobileData = data;
-                localStorage.setItem('tks_grapari_mobile_v3', JSON.stringify(grapariMobileData));
+            try {
+                if (currentMainMenu === 'ivr') {
+                    ivrData = data;
+                    localStorage.setItem('tks_ivr_data_v11', JSON.stringify(ivrData));
+                } else if (currentMainMenu === 'grapari-indihome') {
+                    grapariIndihomeData = data;
+                    localStorage.setItem('tks_grapari_indihome_v11', JSON.stringify(grapariIndihomeData));
+                } else {
+                    grapariMobileData = data;
+                    localStorage.setItem('tks_grapari_mobile_v11', JSON.stringify(grapariMobileData));
+                }
+                return true;
+            } catch (err) {
+                if (err.name === 'QuotaExceededError' || err.code === 22) {
+                    alert("⚠️ Memori browser penuh! Harap bersihkan data lama atau hapus evidence berukuran besar.");
+                } else {
+                    alert("Terjadi kesalahan saat menyimpan data: " + err.message);
+                }
+                return false;
             }
         }
 
         function switchMainMenu(menu) {
             currentMainMenu = menu;
 
-            // Toggle Header Menu Styles
             document.getElementById('menu-btn-ivr').className = `flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition ${menu === 'ivr' ? 'main-menu-active' : 'main-menu-inactive'}`;
             document.getElementById('menu-btn-grapari-indihome').className = `flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition ${menu === 'grapari-indihome' ? 'main-menu-active' : 'main-menu-inactive'}`;
             document.getElementById('menu-btn-grapari-mobile').className = `flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition ${menu === 'grapari-mobile' ? 'main-menu-active' : 'main-menu-inactive'}`;
 
-            // Header Tag Badge
             const tag = document.getElementById('active-system-tag');
+            const journeyBtnLabel = document.getElementById('btn-journey-map-label');
+
             if (menu === 'ivr') {
                 tag.className = "px-2.5 py-1 text-xs font-semibold bg-sky-100 text-sky-800 rounded-full border border-sky-200 flex items-center gap-1";
                 tag.innerHTML = `<i data-lucide="phone-call" class="w-3 h-3"></i> Modul: Testing IVR`;
+                if (journeyBtnLabel) journeyBtnLabel.innerText = "IVR Journey Map";
             } else if (menu === 'grapari-indihome') {
                 tag.className = "px-2.5 py-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full border border-red-200 flex items-center gap-1";
                 tag.innerHTML = `<i data-lucide="home" class="w-3 h-3"></i> Modul: GraPARI Online IndiHome`;
+                if (journeyBtnLabel) journeyBtnLabel.innerText = "IndiHome Journey Map";
             } else {
                 tag.className = "px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200 flex items-center gap-1";
                 tag.innerHTML = `<i data-lucide="smartphone" class="w-3 h-3"></i> Modul: GraPARI Online Mobile`;
+                if (journeyBtnLabel) journeyBtnLabel.innerText = "Mobile Journey Map";
             }
 
             setupCategoryFilter();
@@ -411,10 +731,7 @@
             select.innerHTML = '<option value="ALL">Semua Kategori</option>';
 
             if (currentMainMenu === 'ivr') {
-                select.innerHTML += `
-                    <option value="1. Halo / Prabayar">Halo / Prabayar</option>
-                    <option value="2. IndiHome/Eznet">IndiHome / Eznet</option>
-                `;
+                select.innerHTML += `<option value="1. Halo / Prabayar">Halo / Prabayar</option><option value="2. IndiHome/Eznet">IndiHome / Eznet</option>`;
             } else if (currentMainMenu === 'grapari-indihome') {
                 GRAPARI_INDIHOME_CAPABILITIES.forEach(cap => select.innerHTML += `<option value="${cap}">${cap}</option>`);
             } else {
@@ -424,42 +741,41 @@
 
         function setupTableHeaders() {
             const thead = document.getElementById('table-head-dynamic');
-            const issueThCat = document.getElementById('issue-th-category');
 
             if (currentMainMenu === 'ivr') {
-                issueThCat.innerText = "Layanan / Tier";
                 thead.innerHTML = `
                     <tr>
                         <th class="py-3 px-3 w-10 text-center">No</th>
                         <th class="py-3 px-3 w-28">Tanggal</th>
+                        <th class="py-3 px-3 w-32">Severity</th>
                         <th class="py-3 px-3 w-36">Layanan</th>
                         <th class="py-3 px-3 w-28">Tier</th>
-                        <th class="py-3 px-3 w-40">Menu / Step</th>
-                        <th class="py-3 px-3">Detail Alur IVR</th>
+                        <th class="py-3 px-3 w-40">Menu Utama</th>
+                        <th class="py-3 px-3">Detail Alur Navigasi IVR</th>
+                        <th class="py-3 px-3 w-20 text-center">Evidence</th>
                         <th class="py-3 px-3 w-24 text-center">Hasil Test</th>
                         <th class="py-3 px-3">Temuan Issue</th>
                         <th class="py-3 px-3">Propose Solusi</th>
-                        <th class="py-3 px-3 w-16 text-center">Aksi</th>
+                        <th class="py-3 px-3 w-16 text-center">Action</th>
                     </tr>
                 `;
             } else {
-                issueThCat.innerText = "Capability Fitur";
                 thead.innerHTML = `
                     <tr>
                         <th class="py-3 px-3 w-10 text-center">No</th>
                         <th class="py-3 px-3 w-28">Tanggal</th>
+                        <th class="py-3 px-3 w-32">Severity</th>
                         <th class="py-3 px-3 w-48">Capability</th>
                         <th class="py-3 px-3">Wording / Step Pengetesan</th>
+                        <th class="py-3 px-3 w-20 text-center">Evidence</th>
                         <th class="py-3 px-3 w-24 text-center">Hasil Test</th>
                         <th class="py-3 px-3">Temuan Issue</th>
                         <th class="py-3 px-3">Propose Solusi</th>
-                        <th class="py-3 px-3 w-16 text-center">Aksi</th>
+                        <th class="py-3 px-3 w-16 text-center">Action</th>
                     </tr>
                 `;
             }
         }
-
-        // --- 2. DASHBOARD METRICS & CHARTS ---
 
         function updateDashboard() {
             const dataset = getActiveDataset();
@@ -470,15 +786,37 @@
 
             document.getElementById('metric-total').innerText = total;
             document.getElementById('metric-passed').innerText = passed;
-            document.getElementById('metric-passed-pct').innerText = total ? `${((passed/total)*100).toFixed(1)}% dari total` : '0%';
+            document.getElementById('metric-passed-pct').innerText = total ? `${((passed/total)*100).toFixed(1)}% of total` : '0%';
             document.getElementById('metric-failed').innerText = failed;
-            document.getElementById('metric-failed-pct').innerText = total ? `${((failed/total)*100).toFixed(1)}% dari total` : '0%';
+            document.getElementById('metric-failed-pct').innerText = total ? `${((failed/total)*100).toFixed(1)}% of total` : '0%';
             document.getElementById('metric-pending').innerText = pending;
-            document.getElementById('metric-pending-pct').innerText = total ? `${((pending/total)*100).toFixed(1)}% dari total` : '0%';
+            document.getElementById('metric-pending-pct').innerText = total ? `${((pending/total)*100).toFixed(1)}% of total` : '0%';
             
             document.getElementById('total-badge').innerText = total;
 
-            // Status Doughnut Chart
+            const testedTotal = passed + failed;
+            const healthScore = testedTotal > 0 ? Math.round((passed / testedTotal) * 100) : 0;
+            const criticalCount = dataset.filter(d => d.severity === 'Critical / Blocker' && d.result === 'Failed').length;
+
+            document.getElementById('metric-health-score').innerText = `${healthScore}%`;
+            document.getElementById('metric-critical-count').innerText = criticalCount;
+
+            const badgeEl = document.getElementById('sla-readiness-badge');
+            if (testedTotal === 0) {
+                badgeEl.className = "px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-slate-700 text-slate-300 border border-slate-600 uppercase tracking-wider";
+                badgeEl.innerText = "⚪ NO DATA TESTED";
+            } else if (healthScore >= 90) {
+                badgeEl.className = "px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 uppercase tracking-wider";
+                badgeEl.innerText = "🟢 SLA EXCELLENT";
+            } else if (healthScore >= 70) {
+                badgeEl.className = "px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 uppercase tracking-wider";
+                badgeEl.innerText = "🟡 SLA WARNING";
+            } else {
+                badgeEl.className = "px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-rose-500/20 text-rose-300 border border-rose-400/30 uppercase tracking-wider";
+                badgeEl.innerText = "🔴 SLA CRITICAL";
+            }
+
+            // Charts
             const ctxPie = document.getElementById('statusChart').getContext('2d');
             if (statusChartInstance) statusChartInstance.destroy();
             statusChartInstance = new Chart(ctxPie, {
@@ -492,38 +830,36 @@
                         borderColor: '#ffffff'
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
 
-            // Category Bar Chart
             const ctxBar = document.getElementById('categoryChart').getContext('2d');
             if (categoryChartInstance) categoryChartInstance.destroy();
 
-            let barLabels = [];
-            let passedCounts = [];
-            let issueCounts = [];
+            let barLabels = [], passedCounts = [], failedCounts = [], pendingCounts = [];
 
             if (currentMainMenu === 'ivr') {
-                document.getElementById('category-chart-title').innerText = "Hasil Test per Jenis Layanan IVR";
+                document.getElementById('category-chart-title').innerText = "Test Results by IVR Service Type";
                 barLabels = ['Halo / Prabayar', 'IndiHome / Eznet'];
                 passedCounts = [
                     dataset.filter(d => d.layanan && d.layanan.includes('Halo') && d.result === 'Passed').length,
                     dataset.filter(d => d.layanan && d.layanan.includes('IndiHome') && d.result === 'Passed').length
                 ];
-                issueCounts = [
-                    dataset.filter(d => d.layanan && d.layanan.includes('Halo') && d.result !== 'Passed').length,
-                    dataset.filter(d => d.layanan && d.layanan.includes('IndiHome') && d.result !== 'Passed').length
+                failedCounts = [
+                    dataset.filter(d => d.layanan && d.layanan.includes('Halo') && d.result === 'Failed').length,
+                    dataset.filter(d => d.layanan && d.layanan.includes('IndiHome') && d.result === 'Failed').length
+                ];
+                pendingCounts = [
+                    dataset.filter(d => d.layanan && d.layanan.includes('Halo') && (d.result === 'Pending' || !d.result)).length,
+                    dataset.filter(d => d.layanan && d.layanan.includes('IndiHome') && (d.result === 'Pending' || !d.result)).length
                 ];
             } else {
                 const capabilities = currentMainMenu === 'grapari-indihome' ? GRAPARI_INDIHOME_CAPABILITIES : GRAPARI_MOBILE_CAPABILITIES;
-                document.getElementById('category-chart-title').innerText = `Hasil Test per Capability (${currentMainMenu === 'grapari-indihome' ? 'IndiHome' : 'Mobile'})`;
+                document.getElementById('category-chart-title').innerText = `Test Results by Capability`;
                 barLabels = capabilities;
                 passedCounts = capabilities.map(c => dataset.filter(d => d.capability === c && d.result === 'Passed').length);
-                issueCounts = capabilities.map(c => dataset.filter(d => d.capability === c && d.result !== 'Passed').length);
+                failedCounts = capabilities.map(c => dataset.filter(d => d.capability === c && d.result === 'Failed').length);
+                pendingCounts = capabilities.map(c => dataset.filter(d => d.capability === c && (d.result === 'Pending' || !d.result)).length);
             }
 
             categoryChartInstance = new Chart(ctxBar, {
@@ -532,47 +868,131 @@
                     labels: barLabels,
                     datasets: [
                         { label: 'Passed', data: passedCounts, backgroundColor: '#10b981' },
-                        { label: 'Pending / Failed', data: issueCounts, backgroundColor: '#f59e0b' }
+                        { label: 'Failed', data: failedCounts, backgroundColor: '#f43f5e' },
+                        { label: 'Pending', data: pendingCounts, backgroundColor: '#f59e0b' }
                     ]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
-                    plugins: { legend: { position: 'bottom' } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { position: 'bottom' } } }
             });
 
-            // Issue Table
+            renderJourneyImpactCards(dataset);
+
+            // RENDER DYNAMIC HEADER & BODY TABEL ISSUES (DENGAN KOLOM MENU UTAMA UNTUK IVR)
+            const issueHead = document.getElementById('issue-table-head');
             const issueBody = document.getElementById('issue-table-body');
+
+            if (currentMainMenu === 'ivr') {
+                issueHead.innerHTML = `
+                    <tr>
+                        <th class="py-3 px-4 w-12 text-center">No</th>
+                        <th class="py-3 px-4 w-28 text-center">Severity</th>
+                        <th class="py-3 px-4 w-36">Layanan / Tier</th>
+                        <th class="py-3 px-4 w-40">Menu Utama</th>
+                        <th class="py-3 px-4 w-52">Detail Alur Navigasi IVR</th>
+                        <th class="py-3 px-4">Issue</th>
+                        <th class="py-3 px-4">Usulan Solusi / Propose</th>
+                        <th class="py-3 px-4 w-24 text-center">Status</th>
+                    </tr>
+                `;
+            } else {
+                issueHead.innerHTML = `
+                    <tr>
+                        <th class="py-3 px-4 w-12 text-center">No</th>
+                        <th class="py-3 px-4 w-28 text-center">Severity</th>
+                        <th class="py-3 px-4 w-48">Capability</th>
+                        <th class="py-3 px-4">Wording / Step Pengetesan</th>
+                        <th class="py-3 px-4">Issue</th>
+                        <th class="py-3 px-4">Usulan Solusi / Propose</th>
+                        <th class="py-3 px-4 w-24 text-center">Status</th>
+                    </tr>
+                `;
+            }
+
             issueBody.innerHTML = '';
             const issues = dataset.filter(d => d.desc || d.propose || d.result === 'Failed');
-            
+
             if (issues.length === 0) {
-                issueBody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400">Belum ada temuan masalah atau catatan perbaikan. Klik <strong>"Catat Hasil Test"</strong> untuk mulai menambah data.</td></tr>`;
+                const colSpan = currentMainMenu === 'ivr' ? 8 : 7;
+                issueBody.innerHTML = `<tr><td colspan="${colSpan}" class="py-8 text-center text-slate-400">Belum ada temuan masalah atau catatan perbaikan.</td></tr>`;
             } else {
                 issues.forEach((item, idx) => {
                     const tr = document.createElement('tr');
                     tr.className = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60';
-                    const categoryCol = currentMainMenu === 'ivr' 
-                        ? `${item.layanan || '-'} <br><span class="text-[10px] text-slate-400">${item.tier || ''}</span>`
-                        : `<span class="font-semibold text-slate-700">${item.capability || '-'}</span>`;
 
-                    tr.innerHTML = `
-                        <td class="py-2.5 px-4 text-center font-medium text-slate-500">${idx + 1}</td>
-                        <td class="py-2.5 px-4 font-medium">${categoryCol}</td>
-                        <td class="py-2.5 px-4 font-semibold text-slate-800">${item.step}</td>
-                        <td class="py-2.5 px-4 text-rose-700 bg-rose-50/50 rounded">${item.desc || '-'}</td>
-                        <td class="py-2.5 px-4 text-sky-800 bg-sky-50/50 rounded">${item.propose || '-'}</td>
-                        <td class="py-2.5 px-4 text-center">${getStatusBadge(item.result)}</td>
-                    `;
+                    if (currentMainMenu === 'ivr') {
+                        tr.innerHTML = `
+                            <td class="py-2.5 px-4 text-center font-medium text-slate-500">${idx + 1}</td>
+                            <td class="py-2.5 px-4 text-center">${getSeverityBadge(item.severity)}</td>
+                            <td class="py-2.5 px-4 font-medium">${item.layanan || '-'} <br><span class="text-[10px] text-slate-400">${item.tier || ''}</span></td>
+                            <td class="py-2.5 px-4 font-bold text-slate-800">${item.menuCategory || '-'}</td>
+                            <td class="py-2.5 px-4 font-semibold text-slate-800">${item.detail || item.step || '-'}</td>
+                            <td class="py-2.5 px-4 text-rose-700 bg-rose-50/50 rounded">${item.desc || '-'}</td>
+                            <td class="py-2.5 px-4 text-sky-800 bg-sky-50/50 rounded">${item.propose || '-'}</td>
+                            <td class="py-2.5 px-4 text-center">${getStatusBadge(item.result)}</td>
+                        `;
+                    } else {
+                        tr.innerHTML = `
+                            <td class="py-2.5 px-4 text-center font-medium text-slate-500">${idx + 1}</td>
+                            <td class="py-2.5 px-4 text-center">${getSeverityBadge(item.severity)}</td>
+                            <td class="py-2.5 px-4 font-semibold text-slate-700">${item.capability || '-'}</td>
+                            <td class="py-2.5 px-4 font-semibold text-slate-800">${item.step || '-'}</td>
+                            <td class="py-2.5 px-4 text-rose-700 bg-rose-50/50 rounded">${item.desc || '-'}</td>
+                            <td class="py-2.5 px-4 text-sky-800 bg-sky-50/50 rounded">${item.propose || '-'}</td>
+                            <td class="py-2.5 px-4 text-center">${getStatusBadge(item.result)}</td>
+                        `;
+                    }
                     issueBody.appendChild(tr);
                 });
             }
+
             lucide.createIcons();
         }
 
-        // --- 3. DATA TABLE RENDER ---
+        function renderJourneyImpactCards(dataset) {
+            const container = document.getElementById('journey-impact-container');
+            container.innerHTML = '';
+            const pillars = JOURNEY_MAP[currentMainMenu] || [];
+
+            pillars.forEach(pilar => {
+                let pilarPassed = 0, pilarFailed = 0, pilarTotal = 0;
+
+                if (currentMainMenu === 'ivr') {
+                    const items = dataset.filter(d => pilar.categories.includes(d.menuCategory));
+                    pilarPassed = items.filter(d => d.result === 'Passed').length;
+                    pilarFailed = items.filter(d => d.result === 'Failed').length;
+                    pilarTotal = items.length;
+                } else {
+                    const items = dataset.filter(d => pilar.capabilities.includes(d.capability));
+                    pilarPassed = items.filter(d => d.result === 'Passed').length;
+                    pilarFailed = items.filter(d => d.result === 'Failed').length;
+                    pilarTotal = items.length;
+                }
+
+                const pct = pilarTotal > 0 ? Math.round((pilarPassed / pilarTotal) * 100) : 0;
+                let statusColor = "border-emerald-200 bg-emerald-50/30 text-emerald-800";
+                if (pilarFailed > 0) statusColor = "border-rose-200 bg-rose-50/30 text-rose-800";
+                else if (pilarTotal === 0) statusColor = "border-slate-200 bg-slate-50 text-slate-600";
+
+                container.innerHTML += `
+                    <div class="p-4 rounded-xl border ${statusColor} space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-xs uppercase tracking-wider">${pilar.title}</h4>
+                                <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1" title="${pilar.desc}">${pilar.desc}</p>
+                            </div>
+                            <span class="text-xs font-black px-2 py-0.5 rounded bg-white shadow-sm border border-slate-200">${pct}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="flex justify-between text-[11px] font-medium pt-1">
+                            <span class="text-emerald-700">✓ ${pilarPassed} Passed</span>
+                            <span class="text-rose-700">✕ ${pilarFailed} Failed</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
         function renderTable() {
             const body = document.getElementById('main-table-body');
@@ -581,15 +1001,16 @@
             const dataset = getActiveDataset();
             const search = document.getElementById('search-input').value.toLowerCase();
             const filterRes = document.getElementById('filter-result').value;
+            const filterSev = document.getElementById('filter-severity').value;
             const filterCat = document.getElementById('filter-category').value;
             const sortDateDir = document.getElementById('sort-date').value;
 
-            // Filter logic
             let filtered = dataset.filter(item => {
                 const searchStr = ((item.step || '') + (item.detail || '') + (item.desc || '') + (item.propose || '') + (item.capability || '') + (item.layanan || '')).toLowerCase();
                 const matchSearch = searchStr.includes(search);
                 const matchRes = filterRes === 'ALL' || item.result === filterRes || (filterRes === 'Pending' && item.result !== 'Passed' && item.result !== 'Failed');
-                
+                const matchSev = filterSev === 'ALL' || item.severity === filterSev || (!item.severity && filterSev === 'Minor / Cosmetic');
+
                 let matchCat = true;
                 if (filterCat !== 'ALL') {
                     if (currentMainMenu === 'ivr') {
@@ -598,10 +1019,9 @@
                         matchCat = item.capability === filterCat;
                     }
                 }
-                return matchSearch && matchRes && matchCat;
+                return matchSearch && matchRes && matchSev && matchCat;
             });
 
-            // Sort logic
             filtered.sort((a, b) => {
                 const dateA = new Date(a.date || '1970-01-01');
                 const dateB = new Date(b.date || '1970-01-01');
@@ -611,7 +1031,7 @@
             document.getElementById('filtered-count').innerText = filtered.length;
 
             if (filtered.length === 0) {
-                body.innerHTML = `<tr><td colspan="10" class="py-12 text-center text-slate-400">Database kosong / Data tidak ditemukan. Klik tombol <strong>"Catat Hasil Test"</strong> untuk menginput data baru.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="12" class="py-12 text-center text-slate-400">Database kosong / Data tidak ditemukan. Klik <strong>"Record Test"</strong>.</td></tr>`;
                 return;
             }
 
@@ -619,19 +1039,38 @@
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white hover:bg-slate-50' : 'bg-slate-50/40 hover:bg-slate-50';
                 
+                let evidenceCell = `<span class="text-slate-300 text-[10px] text-center block">-</span>`;
+                if (item.evidence) {
+                    if (item.evidence.type === 'video') {
+                        evidenceCell = `
+                            <button onclick="viewMediaModal('${item.id}')" class="px-2 py-1 text-[10px] font-bold bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-300 rounded-lg flex items-center gap-1 mx-auto transition">
+                                <i data-lucide="video" class="w-3 h-3"></i> Video
+                            </button>
+                        `;
+                    } else {
+                        evidenceCell = `
+                            <button onclick="viewMediaModal('${item.id}')" class="px-2 py-1 text-[10px] font-bold bg-sky-100 text-sky-700 hover:bg-sky-200 border border-sky-300 rounded-lg flex items-center gap-1 mx-auto transition">
+                                <i data-lucide="image" class="w-3 h-3"></i> Gambar
+                            </button>
+                        `;
+                    }
+                }
+
                 if (currentMainMenu === 'ivr') {
                     tr.innerHTML = `
                         <td class="py-3 px-3 text-center text-slate-500 font-medium">${index + 1}</td>
                         <td class="py-3 px-3 whitespace-nowrap font-medium text-slate-700 bg-amber-50/30 rounded">${item.date || '-'}</td>
+                        <td class="py-3 px-3 text-center">${getSeverityBadge(item.severity)}</td>
                         <td class="py-3 px-3 font-medium text-slate-700">${item.layanan || '-'}</td>
                         <td class="py-3 px-3 text-slate-500">${item.tier || '-'}</td>
-                        <td class="py-3 px-3 font-semibold text-slate-800">${item.step}</td>
-                        <td class="py-3 px-3 text-slate-600 max-w-xs truncate" title="${item.detail}">${item.detail || '-'}</td>
+                        <td class="py-3 px-3 font-semibold text-slate-800">${item.menuCategory || '-'}</td>
+                        <td class="py-3 px-3 text-slate-700 font-medium max-w-xs truncate" title="${item.detail || item.step || ''}">${item.detail || item.step || '-'}</td>
+                        <td class="py-3 px-3 text-center">${evidenceCell}</td>
                         <td class="py-3 px-3 text-center">${getStatusBadge(item.result)}</td>
                         <td class="py-3 px-3 text-rose-600 max-w-xs truncate" title="${item.desc}">${item.desc || '-'}</td>
                         <td class="py-3 px-3 text-sky-700 max-w-xs truncate" title="${item.propose}">${item.propose || '-'}</td>
                         <td class="py-3 px-3 text-center">
-                            <button onclick="editTestCase(${item.id})" class="p-1.5 text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded transition">
+                            <button onclick="editTestCase('${item.id}')" class="p-1.5 text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded transition" title="Edit">
                                 <i data-lucide="edit-2" class="w-4 h-4"></i>
                             </button>
                         </td>
@@ -640,13 +1079,15 @@
                     tr.innerHTML = `
                         <td class="py-3 px-3 text-center text-slate-500 font-medium">${index + 1}</td>
                         <td class="py-3 px-3 whitespace-nowrap font-medium text-slate-700 bg-amber-50/30 rounded">${item.date || '-'}</td>
+                        <td class="py-3 px-3 text-center">${getSeverityBadge(item.severity)}</td>
                         <td class="py-3 px-3 font-semibold text-slate-800">${item.capability || '-'}</td>
                         <td class="py-3 px-3 text-slate-700">${item.step}</td>
+                        <td class="py-3 px-3 text-center">${evidenceCell}</td>
                         <td class="py-3 px-3 text-center">${getStatusBadge(item.result)}</td>
                         <td class="py-3 px-3 text-rose-600 max-w-xs truncate" title="${item.desc}">${item.desc || '-'}</td>
                         <td class="py-3 px-3 text-sky-700 max-w-xs truncate" title="${item.propose}">${item.propose || '-'}</td>
                         <td class="py-3 px-3 text-center">
-                            <button onclick="editTestCase(${item.id})" class="p-1.5 text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded transition">
+                            <button onclick="editTestCase('${item.id}')" class="p-1.5 text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded transition" title="Edit">
                                 <i data-lucide="edit-2" class="w-4 h-4"></i>
                             </button>
                         </td>
@@ -658,74 +1099,349 @@
         }
 
         function getStatusBadge(result) {
-            if (result === 'Passed') {
-                return `<span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-300">Passed</span>`;
-            } else if (result === 'Failed') {
-                return `<span class="px-2 py-0.5 text-[10px] font-bold bg-rose-100 text-rose-800 rounded-full border border-rose-300">Failed</span>`;
-            } else {
-                return `<span class="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded-full border border-amber-300">Pending</span>`;
-            }
+            if (result === 'Passed') return `<span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-300">Passed</span>`;
+            if (result === 'Failed') return `<span class="px-2 py-0.5 text-[10px] font-bold bg-rose-100 text-rose-800 rounded-full border border-rose-300">Failed</span>`;
+            return `<span class="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded-full border border-amber-300">Pending</span>`;
         }
 
-        // --- 4. MODAL FORM ACTIONS & DYNAMIC FIELDS ---
+        function getSeverityBadge(severity) {
+            if (severity === 'Critical / Blocker') return `<span class="px-2 py-0.5 text-[9px] font-extrabold bg-rose-600 text-white rounded-md shadow-xs">Critical</span>`;
+            if (severity === 'Major / Functional') return `<span class="px-2 py-0.5 text-[9px] font-bold bg-amber-100 text-amber-800 rounded-md border border-amber-300">Major</span>`;
+            return `<span class="px-2 py-0.5 text-[9px] font-medium bg-slate-100 text-slate-600 rounded-md border border-slate-200">Minor</span>`;
+        }
+
+        // --- 4. RECORD MODAL ACTIONS & AUTOMATIC FILE COMPRESSION LOGIC ---
 
         function openAddModal() {
             let label = 'IVR';
-            if (currentMainMenu === 'grapari-indihome') label = 'GraPARI IndiHome';
-            if (currentMainMenu === 'grapari-mobile') label = 'GraPARI Mobile';
+            if (currentMainMenu === 'grapari-indihome') label = 'GraPARI Online IndiHome';
+            if (currentMainMenu === 'grapari-mobile') label = 'GraPARI Online Mobile';
 
-            document.getElementById('modal-title').innerText = `Catat Hasil Test Baru (${label})`;
+            document.getElementById('modal-title').innerText = `Record Test (${label})`;
             document.getElementById('form-id').value = '';
             document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('form-result').value = 'Passed';
-            document.getElementById('form-step').value = '';
+            document.getElementById('form-severity').value = 'Minor / Cosmetic';
+            if (document.getElementById('form-step')) document.getElementById('form-step').value = '';
             document.getElementById('form-desc').value = '';
             document.getElementById('form-propose').value = '';
+
+            setupEvidenceFileInput();
+            removeEvidence();
 
             buildDynamicFormFields();
             document.getElementById('test-modal').classList.remove('hidden');
         }
 
+        function setupEvidenceFileInput() {
+            const fileInput = document.getElementById('form-evidence-file');
+            const labelText = document.getElementById('evidence-label-text');
+            const hintText = document.getElementById('evidence-hint-text');
+
+            if (currentMainMenu === 'ivr') {
+                fileInput.accept = "video/*";
+                labelText.innerHTML = `<i data-lucide="video" class="w-4 h-4 text-purple-600"></i> Evidence Video Recording`;
+                hintText.innerText = "Auto-Compress Active (Video & Audio Preserved)";
+            } else {
+                fileInput.accept = "image/*";
+                labelText.innerHTML = `<i data-lucide="image" class="w-4 h-4 text-sky-600"></i> Evidence Image Screen Capture`;
+                hintText.innerText = "Auto-Compress Active (JPEG 60%)";
+            }
+            lucide.createIcons();
+        }
+
+        async function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const loadingBox = document.getElementById('compress-loading');
+            const loadingText = document.getElementById('compress-loading-text');
+            const btnSave = document.getElementById('btn-save-submit');
+
+            loadingBox.classList.remove('hidden');
+            btnSave.disabled = true;
+            btnSave.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                let evidenceObj = null;
+
+                if (currentMainMenu === 'ivr') {
+                    loadingText.innerText = "Mengompres video secara otomatis... Mohon tunggu sebentar.";
+                    const compressedBase64 = await compressVideo(file);
+                    evidenceObj = {
+                        data: compressedBase64,
+                        type: 'video',
+                        name: file.name
+                    };
+                } else {
+                    loadingText.innerText = "Mengompres gambar screenshot... Mohon tunggu.";
+                    const compressedBase64 = await compressImage(file);
+                    evidenceObj = {
+                        data: compressedBase64,
+                        type: 'image',
+                        name: file.name
+                    };
+                }
+
+                document.getElementById('form-evidence-data').value = JSON.stringify(evidenceObj);
+                renderEvidencePreview(evidenceObj);
+
+            } catch (err) {
+                alert("Proses kompresi gagal: " + err.message);
+                input.value = '';
+            } finally {
+                loadingBox.classList.add('hidden');
+                btnSave.disabled = false;
+                btnSave.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        const MAX_WIDTH = 1280;
+                        if (width > MAX_WIDTH) {
+                            height = Math.round((height * MAX_WIDTH) / width);
+                            width = MAX_WIDTH;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                        resolve(dataUrl);
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // FUNGSI KOMPRESI VIDEO YANG SUDAH MENJAGA KEBERADAAN SUARA (AUDIO TRACK)
+        function compressVideo(file) {
+            return new Promise((resolve, reject) => {
+                const video = document.createElement('video');
+                const objectUrl = URL.createObjectURL(file);
+                video.src = objectUrl;
+                
+                // Muted false & Volume 0 agar audio stream bisa diekstrak tanpa suara keras di speaker
+                video.muted = false;
+                video.volume = 0;
+                video.playsInline = true;
+
+                video.onloadedmetadata = () => {
+                    video.play().catch(() => {
+                        video.muted = true;
+                    });
+                    
+                    const canvas = document.createElement('canvas');
+                    let width = video.videoWidth || 640;
+                    let height = video.videoHeight || 360;
+
+                    const MAX_WIDTH = 640;
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height * MAX_WIDTH) / width);
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+
+                    // Ambil Video Stream dari Canvas (15 FPS)
+                    const canvasStream = canvas.captureStream(15);
+                    
+                    // Ambil Audio Track dari Video Asli
+                    let audioTrack = null;
+                    try {
+                        const streamFromVideo = video.captureStream ? video.captureStream() : video.mozCaptureStream();
+                        if (streamFromVideo && streamFromVideo.getAudioTracks().length > 0) {
+                            audioTrack = streamFromVideo.getAudioTracks()[0];
+                        }
+                    } catch (e) {
+                        console.warn("Gagal mengambil audio track langsung dari video:", e);
+                    }
+
+                    // Gabungkan Video Canvas + Audio Asli
+                    const combinedStream = new MediaStream();
+                    canvasStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
+                    if (audioTrack) {
+                        combinedStream.addTrack(audioTrack);
+                    }
+
+                    let recorder;
+                    try {
+                        recorder = new MediaRecorder(combinedStream, {
+                            mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus') ? 'video/webm;codecs=vp8,opus' : 'video/webm',
+                            videoBitsPerSecond: 250000 
+                        });
+                    } catch (e) {
+                        recorder = new MediaRecorder(combinedStream);
+                    }
+
+                    const chunks = [];
+                    recorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) chunks.push(e.data);
+                    };
+
+                    recorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'video/webm' });
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            URL.revokeObjectURL(objectUrl);
+                            resolve(reader.result);
+                        };
+                        reader.readAsDataURL(blob);
+                    };
+
+                    recorder.start();
+
+                    const drawFrame = () => {
+                        if (!video.paused && !video.ended) {
+                            ctx.drawImage(video, 0, 0, width, height);
+                            requestAnimationFrame(drawFrame);
+                        } else {
+                            recorder.stop();
+                        }
+                    };
+                    drawFrame();
+                };
+
+                video.onerror = (err) => {
+                    URL.revokeObjectURL(objectUrl);
+                    reject(err);
+                };
+            });
+        }
+
+        function renderEvidencePreview(evidenceObj) {
+            const container = document.getElementById('evidence-preview-container');
+            const content = document.getElementById('evidence-preview-content');
+
+            container.classList.remove('hidden');
+            if (evidenceObj.type === 'video') {
+                content.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 bg-purple-100 text-purple-700 rounded-lg"><i data-lucide="video" class="w-4 h-4"></i></div>
+                        <span class="text-xs font-semibold text-slate-700 max-w-[200px] truncate">${evidenceObj.name} (Compressed)</span>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <img src="${evidenceObj.data}" class="w-10 h-10 object-cover rounded-lg border border-slate-300 shadow-xs">
+                        <span class="text-xs font-semibold text-slate-700 max-w-[200px] truncate">${evidenceObj.name} (Compressed)</span>
+                    </div>
+                `;
+            }
+            lucide.createIcons();
+        }
+
+        function removeEvidence() {
+            document.getElementById('form-evidence-file').value = '';
+            document.getElementById('form-evidence-data').value = '';
+            document.getElementById('evidence-preview-container').classList.add('hidden');
+        }
+
+        function viewMediaModal(id) {
+            const dataset = getActiveDataset();
+            const item = dataset.find(d => String(d.id) === String(id));
+            if (!item || !item.evidence) return;
+
+            const body = document.getElementById('media-modal-body');
+            const title = document.getElementById('media-modal-title');
+
+            if (item.evidence.type === 'video') {
+                title.innerHTML = `<i data-lucide="video" class="w-4 h-4 text-purple-400"></i> Evidence Video: ${item.evidence.name || 'IVR Recording'}`;
+                body.innerHTML = `<video src="${item.evidence.data}" controls class="w-full max-h-[70vh] rounded-xl shadow-lg" autoplay></video>`;
+            } else {
+                title.innerHTML = `<i data-lucide="image" class="w-4 h-4 text-sky-400"></i> Evidence Screenshot: ${item.evidence.name || 'Screen Capture'}`;
+                body.innerHTML = `<img src="${item.evidence.data}" class="max-w-full max-h-[70vh] object-contain rounded-xl shadow-lg">`;
+            }
+
+            lucide.createIcons();
+            document.getElementById('media-modal').classList.remove('hidden');
+        }
+
+        function closeMediaModal() {
+            document.getElementById('media-modal').classList.add('hidden');
+            document.getElementById('media-modal-body').innerHTML = '';
+        }
+
         function buildDynamicFormFields(item = null) {
             const container = document.getElementById('dynamic-form-fields');
+            const stepWrapper = document.getElementById('wrapper-form-step');
+            const stepInput = document.getElementById('form-step');
+
             container.innerHTML = '';
 
             if (currentMainMenu === 'ivr') {
+                if (stepWrapper) stepWrapper.classList.add('hidden');
+                if (stepInput) stepInput.removeAttribute('required');
+
                 container.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Layanan</label>
-                            <select id="form-layanan" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                                <option value="1. Halo / Prabayar">Halo / Prabayar</option>
-                                <option value="2. IndiHome/Eznet">IndiHome / Eznet</option>
+                            <select id="form-layanan" onchange="onLayananChange()" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white font-medium">
+                                <option value="1. Halo / Prabayar">1. Halo / Prabayar</option>
+                                <option value="2. IndiHome/Eznet">2. IndiHome/Eznet</option>
                             </select>
                         </div>
-                        <div>
+                        <div id="wrapper-form-tier">
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Tier Pelanggan</label>
-                            <select id="form-tier" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                                <option value="Reguler / Other">Reguler / Other</option>
-                                <option value="Diamond / Platinum">Diamond / Platinum</option>
+                            <select id="form-tier" onchange="onTierChange()" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white font-medium">
+                                <option value="Reguler">Reguler</option>
+                                <option value="Priority / OLO">Priority / OLO</option>
                             </select>
                         </div>
                     </div>
+                    
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Detail Alur Navigasi IVR</label>
-                        <input type="text" id="form-detail" placeholder="Cth: Press 1 -> Info PUK -> Verifikasi KTP" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori Menu IVR</label>
+                        <select id="form-menu-category" onchange="onMenuCategoryChange()" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white font-medium">
+                            <option value="" disabled selected>-- Pilih Kategori Menu --</option>
+                        </select>
                     </div>
+
+                    <div id="ivr-dynamic-steps-container" class="space-y-3"></div>
                 `;
+
                 if (item) {
                     if (item.layanan) document.getElementById('form-layanan').value = item.layanan;
-                    if (item.tier) document.getElementById('form-tier').value = item.tier;
-                    if (item.detail) document.getElementById('form-detail').value = item.detail;
+                    if (item.tier && document.getElementById('form-tier')) {
+                        if (item.tier.includes('Diamond') || item.tier.includes('Priority')) {
+                            document.getElementById('form-tier').value = "Priority / OLO";
+                        } else {
+                            document.getElementById('form-tier').value = "Reguler";
+                        }
+                    }
+                    onLayananChange(item.menuCategory);
+                } else {
+                    onLayananChange();
                 }
             } else {
+                if (stepWrapper) stepWrapper.classList.remove('hidden');
+                if (stepInput) stepInput.setAttribute('required', 'required');
+
                 const capabilities = currentMainMenu === 'grapari-indihome' ? GRAPARI_INDIHOME_CAPABILITIES : GRAPARI_MOBILE_CAPABILITIES;
                 let optionsHtml = capabilities.map(c => `<option value="${c}">${c}</option>`).join('');
 
                 container.innerHTML = `
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Capability / Fitur</label>
-                        <select id="form-capability" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <select id="form-capability" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white font-medium">
                             ${optionsHtml}
                         </select>
                     </div>
@@ -734,18 +1450,180 @@
             }
         }
 
+        function onTierChange() {
+            const categorySelect = document.getElementById('form-menu-category');
+            if (categorySelect) {
+                const selectedCat = categorySelect.value;
+                onLayananChange(selectedCat);
+            }
+        }
+
+        function onLayananChange(selectedCategory = null) {
+            const layanan = document.getElementById('form-layanan')?.value;
+            const tierEl = document.getElementById('form-tier');
+            const wrapperTier = document.getElementById('wrapper-form-tier');
+            const categorySelect = document.getElementById('form-menu-category');
+
+            if (!categorySelect) return;
+
+            categorySelect.innerHTML = '<option value="" disabled selected>-- Pilih Kategori Menu --</option>';
+
+            let categories = [];
+            
+            if (layanan === "2. IndiHome/Eznet") {
+                if (wrapperTier) wrapperTier.classList.add('hidden');
+                if (tierEl) tierEl.removeAttribute('required');
+                categories = ["1. Informasi dan Registrasi", "2. Pengaduan Layanan"];
+            } else {
+                if (wrapperTier) wrapperTier.classList.remove('hidden');
+                if (tierEl) tierEl.setAttribute('required', 'required');
+                const tier = tierEl?.value || 'Reguler';
+
+                if (tier === "Priority / OLO") {
+                    categories = ["0. Berbicara dengan Officer"];
+                    selectedCategory = "0. Berbicara dengan Officer";
+                } else {
+                    categories = [
+                        "1. Pembelian Paket",
+                        "2. Informasi Nomor PUK",
+                        "3. Informasi Ganti Kartu",
+                        "4. Keluhan",
+                        "0. Berbicara dengan Officer"
+                    ];
+                }
+            }
+
+            categories.forEach(cat => {
+                const isSelected = selectedCategory && selectedCategory === cat ? 'selected' : '';
+                categorySelect.innerHTML += `<option value="${cat}" ${isSelected}>${cat}</option>`;
+            });
+
+            if (layanan === "1. Halo / Prabayar" && tierEl?.value === "Priority / OLO") {
+                categorySelect.value = "0. Berbicara dengan Officer";
+            }
+
+            onMenuCategoryChange();
+        }
+
+        function onMenuCategoryChange() {
+            const categorySelect = document.getElementById('form-menu-category');
+            const stepsContainer = document.getElementById('ivr-dynamic-steps-container');
+            if (!categorySelect || !stepsContainer) return;
+
+            const category = categorySelect.value;
+            stepsContainer.innerHTML = '';
+
+            if (category === "1. Pembelian Paket") {
+                renderStepSelect("step-1", "Step 1 : Aksi", ["0. Berbicara dengan Officer"]);
+            } 
+            else if (category === "2. Informasi Nomor PUK") {
+                renderStepSelect("step-1", "Step 1 : Tahapan Awal", ["Masukkan NIK KTP"]);
+                renderStepSelect("step-2", "Step 2 : Status Verifikasi", ["Verified", "Not Verified"], "onPukStep2Change()");
+            } 
+            else if (category === "3. Informasi Ganti Kartu") {
+                renderStepSelect("step-1", "Step 1 : Informasi Ganti Kartu", ["Informasi Ganti Kartu OK", "Informasi Ganti Kartu Not OK"]);
+                renderStepSelect("step-2", "Step 2 : Tindak Lanjut", ["0. Berbicara dengan Officer"]);
+            } 
+            else if (category === "4. Keluhan") {
+                renderStepSelect("step-1", "Step 1 : Jenis Keluhan", ["1. Keluhan Tidak Bisa Internet", "2. Keluhan Tidak Bisa Aktivasi Paket"], "onComplaintStep1Change()");
+            } 
+            else if (category === "0. Berbicara dengan Officer") {
+                renderStepSelect("step-1", "Step 1 : Direct Escalation", ["0. Berbicara dengan Officer", "8. Mengulangi Pilihan"]);
+            }
+            else {
+                renderStepSelect("step-1", "Step 1 : Layanan Navigasi", ["Informasi Layanan", "Pengaduan Layanan"]);
+            }
+        }
+
+        function onPukStep2Change() {
+            const step2Val = document.getElementById('ivr-step-2')?.value;
+            removeStepsAfter(2);
+
+            if (step2Val === "Verified") {
+                renderStepSelect("step-3", "Step 3 : Informasi Nomor PUK", ["Informasi Nomor PUK Diterima"]);
+                renderStepSelect("step-4", "Step 4 : Pengisian Survey Layanan", ["Isi Survey (Nilai 1-5) OK", "Isi Survey (Nilai 1-5) Not OK"]);
+            } else if (step2Val === "Not Verified") {
+                renderStepSelect("step-3", "Step 3 : Escalation Officer", ["0. Berbicara dengan Officer (Gagal Verifikasi KTP)"]);
+            }
+        }
+
+        function onComplaintStep1Change() {
+            const step1Val = document.getElementById('ivr-step-1')?.value;
+            removeStepsAfter(1);
+
+            if (step1Val === "1. Keluhan Tidak Bisa Internet") {
+                renderStepSelect("step-2", "Step 2 : Status Refresh Network", ["Refresh Network OK", "Refresh Network Not OK"]);
+                renderStepSelect("step-3", "Step 3 : Tindak Lanjut", ["0. Berbicara dengan Officer"]);
+            } else if (step1Val === "2. Keluhan Tidak Bisa Aktivasi Paket") {
+                renderStepSelect("step-2", "Step 2 : Status Restart Handphone", ["Restart Handphone OK", "Restart Handphone Not OK"]);
+                renderStepSelect("step-3", "Step 3 : Tindak Lanjut", ["0. Berbicara dengan Officer"]);
+            }
+        }
+
+        function renderStepSelect(stepId, labelText, optionsArray, onChangeFn = '') {
+            const container = document.getElementById('ivr-dynamic-steps-container');
+            if (!container) return;
+
+            let existingDiv = document.getElementById(`wrapper-${stepId}`);
+            if (!existingDiv) {
+                existingDiv = document.createElement('div');
+                existingDiv.id = `wrapper-${stepId}`;
+                existingDiv.className = 'space-y-1';
+                container.appendChild(existingDiv);
+            }
+
+            let optionsHtml = optionsArray.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+
+            existingDiv.innerHTML = `
+                <label class="block text-xs font-semibold text-slate-700 mb-1">${labelText}</label>
+                <select id="ivr-${stepId}" onchange="${onChangeFn}" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white font-medium">
+                    ${optionsArray.length > 1 ? '<option value="" disabled selected>-- Pilih ' + labelText + ' --</option>' : ''}
+                    ${optionsHtml}
+                </select>
+            `;
+
+            if (optionsArray.length === 1) {
+                const selectEl = document.getElementById(`ivr-${stepId}`);
+                if (selectEl) selectEl.value = optionsArray[0];
+            }
+        }
+
+        function removeStepsAfter(stepNumber) {
+            const container = document.getElementById('ivr-dynamic-steps-container');
+            if (!container) return;
+            let currentNum = stepNumber + 1;
+            while (document.getElementById(`wrapper-step-${currentNum}`)) {
+                const el = document.getElementById(`wrapper-step-${currentNum}`);
+                if (el) el.remove();
+                currentNum++;
+            }
+        }
+
         function editTestCase(id) {
             const dataset = getActiveDataset();
-            const item = dataset.find(d => d.id === id);
+            const item = dataset.find(d => String(d.id) === String(id));
             if (!item) return;
 
-            document.getElementById('modal-title').innerText = `Edit Test Case (${currentMainMenu.toUpperCase()})`;
+            let label = 'IVR';
+            if (currentMainMenu === 'grapari-indihome') label = 'GraPARI Online IndiHome';
+            if (currentMainMenu === 'grapari-mobile') label = 'GraPARI Online Mobile';
+
+            document.getElementById('modal-title').innerText = `Edit Record Test (${label})`;
             document.getElementById('form-id').value = item.id;
             document.getElementById('form-date').value = item.date || new Date().toISOString().split('T')[0];
             document.getElementById('form-result').value = item.result || 'Passed';
-            document.getElementById('form-step').value = item.step || '';
+            document.getElementById('form-severity').value = item.severity || 'Minor / Cosmetic';
+            if (document.getElementById('form-step')) document.getElementById('form-step').value = item.step || '';
             document.getElementById('form-desc').value = item.desc || '';
             document.getElementById('form-propose').value = item.propose || '';
+
+            setupEvidenceFileInput();
+            if (item.evidence) {
+                document.getElementById('form-evidence-data').value = JSON.stringify(item.evidence);
+                renderEvidencePreview(item.evidence);
+            } else {
+                removeEvidence();
+            }
 
             buildDynamicFormFields(item);
             document.getElementById('test-modal').classList.remove('hidden');
@@ -761,36 +1639,57 @@
             const idVal = document.getElementById('form-id').value;
             
             let newItem = {
-                id: idVal ? parseInt(idVal) : Date.now(),
+                id: idVal ? idVal : String(Date.now()),
                 date: document.getElementById('form-date').value,
                 result: document.getElementById('form-result').value,
-                step: document.getElementById('form-step').value,
+                severity: document.getElementById('form-severity').value,
                 desc: document.getElementById('form-desc').value,
                 propose: document.getElementById('form-propose').value
             };
 
+            const evidenceRaw = document.getElementById('form-evidence-data').value;
+            if (evidenceRaw) {
+                try {
+                    newItem.evidence = JSON.parse(evidenceRaw);
+                } catch(err){}
+            }
+
             if (currentMainMenu === 'ivr') {
-                newItem.layanan = document.getElementById('form-layanan').value;
-                newItem.tier = document.getElementById('form-tier').value;
-                newItem.detail = document.getElementById('form-detail').value;
+                const layananVal = document.getElementById('form-layanan').value;
+                newItem.layanan = layananVal;
+                newItem.tier = layananVal === "2. IndiHome/Eznet" ? "-" : (document.getElementById('form-tier')?.value || "Reguler");
+                newItem.menuCategory = document.getElementById('form-menu-category')?.value || '';
+                
+                let collectedSteps = [];
+                let stepIdx = 1;
+                while (document.getElementById(`ivr-step-${stepIdx}`)) {
+                    const stepVal = document.getElementById(`ivr-step-${stepIdx}`).value;
+                    if (stepVal) collectedSteps.push(stepVal);
+                    stepIdx++;
+                }
+
+                newItem.detail = collectedSteps.join(" > ");
+                newItem.step = newItem.detail;
             } else {
                 newItem.capability = document.getElementById('form-capability').value;
+                newItem.step = document.getElementById('form-step').value;
             }
 
+            let updatedDataset = [...dataset];
             if (idVal) {
-                const idx = dataset.findIndex(d => d.id === parseInt(idVal));
-                if (idx !== -1) dataset[idx] = newItem;
+                const idx = updatedDataset.findIndex(d => String(d.id) === String(idVal));
+                if (idx !== -1) updatedDataset[idx] = newItem;
             } else {
-                dataset.unshift(newItem);
+                updatedDataset.unshift(newItem);
             }
 
-            setActiveDataset(dataset);
-            updateDashboard();
-            renderTable();
-            closeModal();
+            const success = setActiveDataset(updatedDataset);
+            if (success) {
+                updateDashboard();
+                renderTable();
+                closeModal();
+            }
         }
-
-        // --- 5. EXPORT & CLEAR DATA ---
 
         function exportToExcel(type = 'all') {
             const dataset = getActiveDataset();
@@ -805,10 +1704,12 @@
                 exportData = dataset.map((item, index) => ({
                     "No": index + 1,
                     "Tanggal Testing": item.date || "-",
+                    "Severity": item.severity || "Minor",
                     "Jenis Layanan": item.layanan || "-",
                     "Tier Pelanggan": item.tier || "-",
-                    "Menu / Step IVR": item.step || "-",
-                    "Detail Navigasi": item.detail || "-",
+                    "Kategori Menu": item.menuCategory || "-",
+                    "Detail Alur Navigasi IVR": item.detail || item.step || "-",
+                    "Status Evidence": item.evidence ? `Ada (${item.evidence.type})` : "Tidak Ada",
                     "Hasil Test Case": item.result || "Pending",
                     "Deskripsi Issue": item.desc || "-",
                     "Rekomendasi Propose": item.propose || "-"
@@ -817,8 +1718,10 @@
                 exportData = dataset.map((item, index) => ({
                     "No": index + 1,
                     "Tanggal Testing": item.date || "-",
+                    "Severity": item.severity || "Minor",
                     "Capability": item.capability || "-",
                     "Wording / Step Pengetesan": item.step || "-",
+                    "Status Evidence": item.evidence ? `Ada (${item.evidence.type})` : "Tidak Ada",
                     "Hasil Test Case": item.result || "Pending",
                     "Deskripsi Issue": item.desc || "-",
                     "Rekomendasi Propose": item.propose || "-"
@@ -833,7 +1736,7 @@
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Hasil Testing");
 
-            const filename = `Laporan_QA_${currentMainMenu.toUpperCase()}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            const filename = `AVINDHA_Laporan_QA_${currentMainMenu.toUpperCase()}_${new Date().toISOString().split('T')[0]}.xlsx`;
             XLSX.writeFile(workbook, filename);
         }
 
@@ -842,7 +1745,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataset, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `QA_Backup_${currentMainMenu.toUpperCase()}_${new Date().toISOString().split('T')[0]}.json`);
+            downloadAnchor.setAttribute("download", `AVINDHA_Backup_${currentMainMenu.toUpperCase()}_${new Date().toISOString().split('T')[0]}.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
@@ -856,7 +1759,6 @@
             }
         }
 
-        // Initialize App
         window.onload = function() {
             switchMainMenu('ivr');
         };

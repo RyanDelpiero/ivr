@@ -446,20 +446,36 @@
             ]
         };
 
+        // 1. Perbaikan loadStorageSafely agar tahan terhadap proteksi keamanan mobile
         function loadStorageSafely(keyPrefix) {
-            const keys = [`${keyPrefix}_v11`, `${keyPrefix}_v10`, `${keyPrefix}_v9`, `${keyPrefix}_v8`, `${keyPrefix}_v7`, `${keyPrefix}_v6`, `${keyPrefix}_v5`, `${keyPrefix}_v4`, `${keyPrefix}_v3`, `${keyPrefix}_v2`, `${keyPrefix}`];
-            for (let k of keys) {
-                const val = localStorage.getItem(k);
-                if (val) {
-                    try {
-                        const parsed = JSON.parse(val);
-                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-                    } catch (e) {}
+            try {
+                const keys = [
+                    `${keyPrefix}_v11`, `${keyPrefix}_v10`, `${keyPrefix}_v9`, 
+                    `${keyPrefix}_v8`, `${keyPrefix}_v7`, `${keyPrefix}_v6`, 
+                    `${keyPrefix}_v5`, `${keyPrefix}_v4`, `${keyPrefix}_v3`, 
+                    `${keyPrefix}_v2`, `${keyPrefix}`
+                ];
+                for (let k of keys) {
+                    const val = localStorage.getItem(k);
+                    if (val) {
+                        try {
+                            const parsed = JSON.parse(val);
+                            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                        } catch (e) {}
+                    }
                 }
+            } catch (err) {
+                console.warn("Akses LocalStorage dibatasi atau tidak didukung di perangkat ini:", err);
             }
             return [];
         }
-
+        // 2. Perbaikan Pemanggilan Lucide Icons (Cek ketersediaan library)
+        function safeCreateIcons() {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
+        
         let currentMainMenu = 'ivr';
         let currentSubTab = 'dashboard';
 
@@ -1760,7 +1776,11 @@
         }
 
         window.onload = function() {
-            switchMainMenu('ivr');
+            try {
+                switchMainMenu('ivr');
+            } catch (err) {
+                console.error("Gagal melakukan inisialisasi awal di mobile:", err);
+            }
         };
     </script>
 </body>

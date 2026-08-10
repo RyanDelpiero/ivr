@@ -20,294 +20,358 @@
         .tab-active { border-bottom: 3px solid #0284c7; color: #0284c7; font-weight: 600; }
     </style>
 </head>
-<body class="min-h-screen text-slate-800 flex flex-col">
+<body class="min-h-screen text-slate-800 flex flex-col relative">
 
-    <!-- Header / Navbar -->
-    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-6">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-red-600 p-2 rounded-lg text-white">
-                        <i data-lucide="shield-check" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-lg leading-tight">AVINDHA Dashboard</h1>
-                        <p class="text-xs text-slate-400">Automated Verification Dashboard Assurance</p>
+    <!-- 0. SCREEN LOGIN OVERLAY (Authentication Gate) -->
+    <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-8 relative overflow-hidden">
+            <!-- Decorative Accent -->
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-red-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="text-center mb-6">
+                <div class="inline-flex p-3 bg-red-600/20 text-red-500 border border-red-500/30 rounded-2xl mb-3 shadow-inner">
+                    <i data-lucide="shield-check" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white tracking-tight">AVINDHA Dashboard</h2>
+                <p class="text-xs text-slate-400 mt-1">Service Assurance & Quality Control System</p>
+            </div>
+
+            <!-- Login Form -->
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Username / NIK</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
+                        <input type="text" id="login-username" required placeholder="Masukkan username (ex: tester / admin)" class="w-full bg-slate-950 text-xs text-white pl-9 pr-4 py-2.5 border border-slate-800 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition">
                     </div>
                 </div>
 
-                <!-- NAVIGATION SWITCHER -->
-                <nav class="hidden md:flex bg-slate-800 p-1 rounded-xl border border-slate-700/60 ml-4 space-x-1">
-                    <button onclick="switchMainMenu('ivr')" id="menu-btn-ivr" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-active">
-                        <i data-lucide="phone-call" class="w-4 h-4"></i> IVR
-                    </button>
-                    <button onclick="switchMainMenu('grapari-indihome')" id="menu-btn-grapari-indihome" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-inactive">
-                        <i data-lucide="home" class="w-4 h-4"></i> GraPARI Online IndiHome
-                    </button>
-                    <button onclick="switchMainMenu('grapari-mobile')" id="menu-btn-grapari-mobile" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-inactive">
-                        <i data-lucide="smartphone" class="w-4 h-4"></i> GraPARI Online Mobile
-                    </button>
-                </nav>
-            </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Password</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 text-xs text-white pl-9 pr-4 py-2.5 border border-slate-800 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition">
+                    </div>
+                </div>
 
-            <!-- BUTTON ACTION HEADER -->
-            <div class="flex items-center space-x-2">
-                <button onclick="exportToExcel()" title="Export Excel (.xlsx)" class="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-sm flex items-center justify-center">
-                    <i data-lucide="file-text" class="w-4 h-4"></i>
-                </button>
-                <button onclick="exportJSON()" title="Backup Data JSON" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center justify-center">
-                    <i data-lucide="arrow-down" class="w-4 h-4"></i>
-                </button>
-                <label title="Import Backup JSON" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 rounded-lg transition flex items-center justify-center cursor-pointer">
-                    <i data-lucide="arrow-up-from-line" class="w-4 h-4"></i>
-                    <input type="file" accept=".json" onchange="importJSON(event)" class="hidden">
-                </label>
-                <button onclick="clearAllData()" title="Clear All Data" class="p-2.5 bg-red-900/40 text-red-300 hover:bg-red-900/70 border border-red-800/50 rounded-lg transition flex items-center justify-center">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-            </div>
-        </div>
-    </header>
+                <!-- Error Alert Box -->
+                <div id="login-error" class="hidden p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-xs font-medium flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                    <span>Username atau password salah!</span>
+                </div>
 
-    <!-- Sub-Navigation Tabs -->
-    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            <div class="flex space-x-8">
-                <button onclick="switchSubTab('dashboard')" id="tab-dashboard" class="py-4 text-sm font-medium flex items-center gap-2 tab-active">
-                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Overview
+                <button type="submit" class="w-full py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-sky-600/20 transition flex items-center justify-center gap-2 mt-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> Masuk Dashboard
                 </button>
-                <button onclick="switchSubTab('data-table')" id="tab-data-table" class="py-4 text-sm font-medium text-slate-500 hover:text-slate-700 flex items-center gap-2">
-                    <i data-lucide="list-checks" class="w-4 h-4"></i> Data Test Case (<span id="total-badge">0</span>)
-                </button>
-            </div>
+            </form>
 
-            <div class="flex items-center gap-3">
-                <button onclick="openJourneyModal()" id="btn-journey-map" class="py-1.5 px-3 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 rounded-lg flex items-center gap-1.5 transition shadow-sm">
-                    <i data-lucide="git-fork" class="w-4 h-4 text-amber-400"></i> <span id="btn-journey-map-label">IVR Journey Map</span>
-                </button>
-
-                <span id="active-system-tag" class="px-2.5 py-1 text-xs font-semibold bg-sky-100 text-sky-800 rounded-full border border-sky-200 flex items-center gap-1">
-                    <i data-lucide="phone-call" class="w-3 h-3"></i> Modul: Testing IVR
-                </span>
-                <button onclick="openAddModal()" class="py-2 px-4 text-xs font-semibold bg-sky-600 hover:bg-sky-700 text-white rounded-lg flex items-center gap-1.5 transition shadow-sm">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Record Test
-                </button>
+            <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+                <p class="text-[11px] text-slate-500">Kredensial Pengujian: <code class="text-sky-400 font-mono">admin/admin123</code> atau <code class="text-sky-400 font-mono">tester/qa123</code></p>
             </div>
         </div>
     </div>
 
-    <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
-
-        <!-- VIEW 1: DASHBOARD OVERVIEW -->
-        <div id="view-dashboard" class="space-y-6">
-
-            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-sky-900 text-white p-5 rounded-2xl shadow-md border border-slate-700/60 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="p-4 bg-sky-500/20 border border-sky-400/30 rounded-2xl text-sky-400">
-                        <i data-lucide="activity" class="w-8 h-8"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-base font-bold tracking-wide">System Health Index</h2>
-                            <span id="sla-readiness-badge" class="px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 uppercase tracking-wider">
-                                🟢 SLA EXCELLENT
-                            </span>
+    <!-- MAIN APP CONTENT -->
+    <div id="app-content" class="hidden min-h-screen flex flex-col">
+        <!-- Header / Navbar -->
+        <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-red-600 p-2 rounded-lg text-white">
+                            <i data-lucide="shield-check" class="w-6 h-6"></i>
                         </div>
-                        <p class="text-xs text-slate-300 mt-1" id="health-description">Module health percentage based on functional testing results.</p>
+                        <div>
+                            <h1 class="font-bold text-lg leading-tight">AVINDHA Dashboard</h1>
+                            <p class="text-xs text-slate-400">Automated Verification Dashboard Assurance</p>
+                        </div>
                     </div>
-                </div>
-                <div class="flex items-center gap-6 bg-slate-950/40 px-6 py-3 rounded-xl border border-white/10 w-full md:w-auto justify-between md:justify-end">
-                    <div class="text-center">
-                        <p class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Health Score</p>
-                        <p class="text-2xl font-black text-sky-400 mt-0.5" id="metric-health-score">0%</p>
-                    </div>
-                    <div class="h-8 w-px bg-slate-700"></div>
-                    <div class="text-center">
-                        <p class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Critical Defects</p>
-                        <p class="text-2xl font-black text-rose-400 mt-0.5" id="metric-critical-count">0</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Summary Metrics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Test Cases</p>
-                        <h3 class="text-2xl font-bold text-slate-900 mt-1" id="metric-total">0</h3>
-                        <p class="text-xs text-slate-400 mt-1">Listed Scenario</p>
-                    </div>
-                    <div class="p-3 bg-slate-100 rounded-lg text-slate-600">
-                        <i data-lucide="file-text" class="w-6 h-6"></i>
-                    </div>
+
+                    <!-- NAVIGATION SWITCHER -->
+                    <nav class="hidden md:flex bg-slate-800 p-1 rounded-xl border border-slate-700/60 ml-4 space-x-1">
+                        <button onclick="switchMainMenu('ivr')" id="menu-btn-ivr" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-active">
+                            <i data-lucide="phone-call" class="w-4 h-4"></i> IVR
+                        </button>
+                        <button onclick="switchMainMenu('grapari-indihome')" id="menu-btn-grapari-indihome" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-inactive">
+                            <i data-lucide="home" class="w-4 h-4"></i> GraPARI Online IndiHome
+                        </button>
+                        <button onclick="switchMainMenu('grapari-mobile')" id="menu-btn-grapari-mobile" class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition main-menu-inactive">
+                            <i data-lucide="smartphone" class="w-4 h-4"></i> GraPARI Online Mobile
+                        </button>
+                    </nav>
                 </div>
 
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Passed</p>
-                        <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="metric-passed">0</h3>
-                        <p class="text-xs text-emerald-600/70 mt-1" id="metric-passed-pct">0% of total</p>
+                <!-- USER PROFILE & BUTTON ACTION HEADER -->
+                <div class="flex items-center space-x-3">
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1 bg-slate-800 border border-slate-700/80 rounded-xl">
+                        <div class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs uppercase" id="user-avatar-initial">T</div>
+                        <div class="text-left">
+                            <p class="text-xs font-semibold text-slate-200" id="user-display-name">QA Tester</p>
+                            <p class="text-[10px] text-slate-400 font-mono capitalize" id="user-display-role">Tester</p>
+                        </div>
                     </div>
-                    <div class="p-3 bg-emerald-50 rounded-lg text-emerald-600">
-                        <i data-lucide="check-circle-2" class="w-6 h-6"></i>
-                    </div>
-                </div>
 
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-rose-600 uppercase tracking-wider">Failed</p>
-                        <h3 class="text-2xl font-bold text-rose-600 mt-1" id="metric-failed">0</h3>
-                        <p class="text-xs text-rose-600/70 mt-1" id="metric-failed-pct">0% of total</p>
-                    </div>
-                    <div class="p-3 bg-rose-50 rounded-lg text-rose-600">
-                        <i data-lucide="x-circle" class="w-6 h-6"></i>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Pending / Untested</p>
-                        <h3 class="text-2xl font-bold text-amber-600 mt-1" id="metric-pending">0</h3>
-                        <p class="text-xs text-amber-600/70 mt-1" id="metric-pending-pct">0% of total</p>
-                    </div>
-                    <div class="p-3 bg-amber-50 rounded-lg text-amber-600">
-                        <i data-lucide="clock" class="w-6 h-6"></i>
-                    </div>
+                    <button onclick="exportToExcel()" title="Export Excel (.xlsx)" class="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-sm flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="exportJSON()" title="Backup Data JSON" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center justify-center">
+                        <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                    </button>
+                    <label title="Import Backup JSON" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 rounded-lg transition flex items-center justify-center cursor-pointer">
+                        <i data-lucide="arrow-up-from-line" class="w-4 h-4"></i>
+                        <input type="file" accept=".json" onchange="importJSON(event)" class="hidden">
+                    </label>
+                    <button onclick="clearAllData()" title="Clear All Data" class="p-2.5 bg-red-900/40 text-red-300 hover:bg-red-900/70 border border-red-800/50 rounded-lg transition flex items-center justify-center">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="handleLogout()" title="Logout System" class="p-2.5 bg-slate-800 hover:bg-rose-900/50 text-rose-400 border border-slate-700 hover:border-rose-800 rounded-lg transition flex items-center justify-center">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
+        </header>
 
-            <!-- Visual Charts Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
-                        <i data-lucide="pie-chart" class="w-4 h-4 text-sky-600"></i> Percentage of Test Results
-                    </h3>
-                    <div class="h-64 flex items-center justify-center">
-                        <canvas id="statusChart"></canvas>
+        <!-- Sub-Navigation Tabs -->
+        <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                <div class="flex space-x-8">
+                    <button onclick="switchSubTab('dashboard')" id="tab-dashboard" class="py-4 text-sm font-medium flex items-center gap-2 tab-active">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Overview
+                    </button>
+                    <button onclick="switchSubTab('data-table')" id="tab-data-table" class="py-4 text-sm font-medium text-slate-500 hover:text-slate-700 flex items-center gap-2">
+                        <i data-lucide="list-checks" class="w-4 h-4"></i> Data Test Case (<span id="total-badge">0</span>)
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="openJourneyModal()" id="btn-journey-map" class="py-1.5 px-3 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 rounded-lg flex items-center gap-1.5 transition shadow-sm">
+                        <i data-lucide="git-fork" class="w-4 h-4 text-amber-400"></i> <span id="btn-journey-map-label">IVR Journey Map</span>
+                    </button>
+
+                    <span id="active-system-tag" class="px-2.5 py-1 text-xs font-semibold bg-sky-100 text-sky-800 rounded-full border border-sky-200 flex items-center gap-1">
+                        <i data-lucide="phone-call" class="w-3 h-3"></i> Modul: Testing IVR
+                    </span>
+                    <button onclick="openAddModal()" class="py-2 px-4 text-xs font-semibold bg-sky-600 hover:bg-sky-700 text-white rounded-lg flex items-center gap-1.5 transition shadow-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Record Test
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Container -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+            <!-- VIEW 1: DASHBOARD OVERVIEW -->
+            <div id="view-dashboard" class="space-y-6">
+
+                <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-sky-900 text-white p-5 rounded-2xl shadow-md border border-slate-700/60 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="p-4 bg-sky-500/20 border border-sky-400/30 rounded-2xl text-sky-400">
+                            <i data-lucide="activity" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base font-bold tracking-wide">System Health Index</h2>
+                                <span id="sla-readiness-badge" class="px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 uppercase tracking-wider">
+                                    🟢 SLA EXCELLENT
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-1" id="health-description">Module health percentage based on functional testing results.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6 bg-slate-950/40 px-6 py-3 rounded-xl border border-white/10 w-full md:w-auto justify-between md:justify-end">
+                        <div class="text-center">
+                            <p class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Health Score</p>
+                            <p class="text-2xl font-black text-sky-400 mt-0.5" id="metric-health-score">0%</p>
+                        </div>
+                        <div class="h-8 w-px bg-slate-700"></div>
+                        <div class="text-center">
+                            <p class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Critical Defects</p>
+                            <p class="text-2xl font-black text-rose-400 mt-0.5" id="metric-critical-count">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary Metrics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Test Cases</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1" id="metric-total">0</h3>
+                            <p class="text-xs text-slate-400 mt-1">Listed Scenario</p>
+                        </div>
+                        <div class="p-3 bg-slate-100 rounded-lg text-slate-600">
+                            <i data-lucide="file-text" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Passed</p>
+                            <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="metric-passed">0</h3>
+                            <p class="text-xs text-emerald-600/70 mt-1" id="metric-passed-pct">0% of total</p>
+                        </div>
+                        <div class="p-3 bg-emerald-50 rounded-lg text-emerald-600">
+                            <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-rose-600 uppercase tracking-wider">Failed</p>
+                            <h3 class="text-2xl font-bold text-rose-600 mt-1" id="metric-failed">0</h3>
+                            <p class="text-xs text-rose-600/70 mt-1" id="metric-failed-pct">0% of total</p>
+                        </div>
+                        <div class="p-3 bg-rose-50 rounded-lg text-rose-600">
+                            <i data-lucide="x-circle" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Pending / Untested</p>
+                            <h3 class="text-2xl font-bold text-amber-600 mt-1" id="metric-pending">0</h3>
+                            <p class="text-xs text-amber-600/70 mt-1" id="metric-pending-pct">0% of total</p>
+                        </div>
+                        <div class="p-3 bg-amber-50 rounded-lg text-amber-600">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
-                    <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
-                        <i data-lucide="bar-chart-3" class="w-4 h-4 text-sky-600"></i> <span id="category-chart-title">Hasil per Layanan</span>
-                    </h3>
-                    <div class="h-64">
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Customer Journey Impact -->
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                <h3 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
-                    <i data-lucide="compass" class="w-4 h-4 text-sky-600"></i> Customer Journey Impact Breakdown
-                </h3>
-                <p class="text-xs text-slate-500 mb-4">Based on Customer Experience</p>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="journey-impact-container"></div>
-            </div>
-
-            <!-- Priority Action Items -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i> Finding Issues and Improvement Suggestions
+                <!-- Visual Charts Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-4 h-4 text-sky-600"></i> Percentage of Test Results
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">List of test cases with issue notes or improvement recommendations</p>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="statusChart"></canvas>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="copyIssueSummary()" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-white rounded-lg flex items-center gap-1.5 transition shadow-sm">
-                            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Summary
-                        </button>
-                        <button onclick="exportToExcel('issues')" class="px-3 py-1.5 text-xs font-medium bg-white hover:bg-slate-100 border border-slate-300 rounded-lg flex items-center gap-1.5 text-slate-700 shadow-sm">
-                            <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i> Unduh Tabel Temuan
-                        </button>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
+                        <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4 text-sky-600"></i> <span id="category-chart-title">Hasil per Layanan</span>
+                        </h3>
+                        <div class="h-64">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider font-semibold" id="issue-table-head">
-                        </thead>
-                        <tbody id="issue-table-body" class="divide-y divide-slate-200"></tbody>
-                    </table>
+
+                <!-- Customer Journey Impact -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
+                        <i data-lucide="compass" class="w-4 h-4 text-sky-600"></i> Customer Journey Impact Breakdown
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-4">Based on Customer Experience</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="journey-impact-container"></div>
                 </div>
+
+                <!-- Priority Action Items -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i> Finding Issues and Improvement Suggestions
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">List of test cases with issue notes or improvement recommendations</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="copyIssueSummary()" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-white rounded-lg flex items-center gap-1.5 transition shadow-sm">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Summary
+                            </button>
+                            <button onclick="exportToExcel('issues')" class="px-3 py-1.5 text-xs font-medium bg-white hover:bg-slate-100 border border-slate-300 rounded-lg flex items-center gap-1.5 text-slate-700 shadow-sm">
+                                <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i> Unduh Tabel Temuan
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider font-semibold" id="issue-table-head">
+                            </thead>
+                            <tbody id="issue-table-body" class="divide-y divide-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
 
-        </div>
-
-        <!-- VIEW 2: DATA TABLE & RECORDING -->
-        <div id="view-data-table" class="hidden space-y-4">
-            
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3">
-                <div class="flex flex-col sm:flex-row gap-3 w-full">
-                    <div class="relative flex-1">
-                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
-                        <input type="text" id="search-input" oninput="renderTable()" placeholder="Cari Ticket ID, provider, no telp, capability, detail alur..." class="pl-9 pr-4 py-2 w-full text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            <!-- VIEW 2: DATA TABLE & RECORDING -->
+            <div id="view-data-table" class="hidden space-y-4">
+                
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3">
+                    <div class="flex flex-col sm:flex-row gap-3 w-full">
+                        <div class="relative flex-1">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                            <input type="text" id="search-input" oninput="renderTable()" placeholder="Cari Ticket ID, provider, no telp, capability, detail alur..." class="pl-9 pr-4 py-2 w-full text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <select id="filter-result" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <option value="ALL">Semua Status</option>
+                            <option value="Passed">Passed</option>
+                            <option value="Failed">Failed</option>
+                            <option value="Pending">Pending / Untested</option>
+                        </select>
+                        <select id="filter-severity" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <option value="ALL">Semua Severity</option>
+                            <option value="Critical / Blocker">Critical / Blocker</option>
+                            <option value="Major / Functional">Major / Functional</option>
+                            <option value="Minor / Cosmetic">Minor / Cosmetic</option>
+                        </select>
+                        <select id="filter-category" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none"></select>
+                        <select id="sort-date" onchange="renderTable()" class="px-3 py-2 text-xs border border-amber-300 bg-amber-50/50 text-slate-700 font-semibold rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none flex items-center">
+                            <option value="DESC">📅 Tanggal Terbaru</option>
+                            <option value="ASC">📅 Tanggal Terlama</option>
+                        </select>
                     </div>
-                    <select id="filter-result" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                        <option value="ALL">Semua Status</option>
-                        <option value="Passed">Passed</option>
-                        <option value="Failed">Failed</option>
-                        <option value="Pending">Pending / Untested</option>
-                    </select>
-                    <select id="filter-severity" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                        <option value="ALL">Semua Severity</option>
-                        <option value="Critical / Blocker">Critical / Blocker</option>
-                        <option value="Major / Functional">Major / Functional</option>
-                        <option value="Minor / Cosmetic">Minor / Cosmetic</option>
-                    </select>
-                    <select id="filter-category" onchange="renderTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none"></select>
-                    <select id="sort-date" onchange="renderTable()" class="px-3 py-2 text-xs border border-amber-300 bg-amber-50/50 text-slate-700 font-semibold rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none flex items-center">
-                        <option value="DESC">📅 Tanggal Terbaru</option>
-                        <option value="ASC">📅 Tanggal Terlama</option>
-                    </select>
+
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Quick Filter:</span>
+                            <button onclick="setQuickFilter('ALL')" class="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition">Semua</button>
+                            <button onclick="setQuickFilter('Failed')" class="px-2.5 py-1 text-[11px] font-semibold bg-rose-100 text-rose-700 rounded-md hover:bg-rose-200 transition">🔴 Hanya Failed</button>
+                            <button onclick="setQuickFilter('Critical')" class="px-2.5 py-1 text-[11px] font-semibold bg-red-600 text-white rounded-md hover:bg-red-700 transition">⚠️ Critical Only</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-500 whitespace-nowrap">
+                                Total: <strong id="filtered-count" class="text-slate-800">0</strong> item
+                            </span>
+                            <button onclick="exportToExcel('all')" class="px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-1.5 transition shadow-sm">
+                                <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i> Download Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-                    <div class="flex items-center gap-2">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Quick Filter:</span>
-                        <button onclick="setQuickFilter('ALL')" class="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition">Semua</button>
-                        <button onclick="setQuickFilter('Failed')" class="px-2.5 py-1 text-[11px] font-semibold bg-rose-100 text-rose-700 rounded-md hover:bg-rose-200 transition">🔴 Hanya Failed</button>
-                        <button onclick="setQuickFilter('Critical')" class="px-2.5 py-1 text-[11px] font-semibold bg-red-600 text-white rounded-md hover:bg-red-700 transition">⚠️ Critical Only</button>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs text-slate-500 whitespace-nowrap">
-                            Total: <strong id="filtered-count" class="text-slate-800">0</strong> item
-                        </span>
-                        <button onclick="exportToExcel('all')" class="px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-1.5 transition shadow-sm">
-                            <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i> Download Excel
-                        </button>
+                <!-- Full Interactive Table -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                        <table class="w-full text-left text-xs relative">
+                            <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-wider sticky top-0 z-10" id="table-head-dynamic"></thead>
+                            <tbody id="main-table-body" class="divide-y divide-slate-200"></tbody>
+                        </table>
                     </div>
                 </div>
+
             </div>
 
-            <!-- Full Interactive Table -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-                    <table class="w-full text-left text-xs relative">
-                        <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-wider sticky top-0 z-10" id="table-head-dynamic"></thead>
-                        <tbody id="main-table-body" class="divide-y divide-slate-200"></tbody>
-                    </table>
-                </div>
-            </div>
+        </main>
+    </div>
 
-        </div>
-
-    </main>
-
-    <!-- MODAL 1: JOURNEY MAP REFERENCE -->
+    <!-- MODAL 1: JOURNEY MAP REFERENCE (COMPREHENSIVE MULTI-MODULE) -->
     <div id="journey-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 text-slate-100 rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="bg-slate-900 text-slate-100 rounded-2xl shadow-2xl w-full max-w-5xl border border-slate-700 overflow-hidden flex flex-col max-h-[92vh]">
             <div class="px-6 py-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-red-600 text-white rounded-lg">
                         <i data-lucide="git-fork" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-sm text-white" id="modal-journey-title">IVR Journey Map & Testing Matrix</h3>
-                        <p class="text-[11px] text-slate-400">Panduan Referensi Alur Navigasi & Percabangan Skenario QA</p>
+                        <h3 class="font-bold text-sm text-white" id="modal-journey-title">Journey Map & QA Architecture</h3>
+                        <p class="text-[11px] text-slate-400">Panduan Komprehensif Alur Navigasi, Syarat, & Matrix Pengujian QA</p>
                     </div>
                 </div>
                 <button onclick="closeJourneyModal()" class="text-slate-400 hover:text-white transition p-1">
@@ -422,8 +486,70 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGIC -->
+    <!-- SCRIPT LOGIC ENGINE -->
     <script>
+        // --- AUTHENTICATION MODULE ---
+        const REGISTERED_USERS = {
+            'admin': { name: 'Admin Assurance', role: 'Supervisor', pass: 'admin123' },
+            'tester': { name: 'QA Tester', role: 'Tester', pass: 'qa123' }
+        };
+
+        let activeUser = null;
+
+        function checkAuthSession() {
+            const savedSession = sessionStorage.getItem('avindha_session');
+            if (savedSession) {
+                activeUser = JSON.parse(savedSession);
+                showDashboardScreen();
+            } else {
+                showLoginScreen();
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-username').value.trim().toLowerCase();
+            const p = document.getElementById('login-password').value;
+            const errBox = document.getElementById('login-error');
+
+            if (REGISTERED_USERS[u] && REGISTERED_USERS[u].pass === p) {
+                activeUser = { username: u, name: REGISTERED_USERS[u].name, role: REGISTERED_USERS[u].role };
+                sessionStorage.setItem('avindha_session', JSON.stringify(activeUser));
+                errBox.classList.add('hidden');
+                showDashboardScreen();
+            } else {
+                errBox.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("Apakah Anda yakin ingin keluar dari sistem AVINDHA?")) {
+                sessionStorage.removeItem('avindha_session');
+                activeUser = null;
+                showLoginScreen();
+            }
+        }
+
+        function showLoginScreen() {
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('app-content').classList.add('hidden');
+        }
+
+        function showDashboardScreen() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+
+            if (activeUser) {
+                document.getElementById('user-display-name').innerText = activeUser.name;
+                document.getElementById('user-display-role').innerText = activeUser.role;
+                document.getElementById('user-avatar-initial').innerText = activeUser.name.charAt(0).toUpperCase();
+            }
+
+            switchMainMenu('ivr');
+            safeCreateIcons();
+        }
+
+        // --- DATA & CONFIGURATION ---
         const GRAPARI_INDIHOME_CAPABILITIES = [
             "Pasang Baru",
             "Lacak Proses Permintaan",
@@ -434,19 +560,19 @@
         ];
 
         const GRAPARI_MOBILE_CAPABILITIES = [
-            "Ganti Kartu/ Migrasi ke 4G",
+            "Beli Kartu Perdana",
+            "Beli eSIM Telkomsel",
             "Cek & Bayar Tagihan Halo",
             "Perbaikan Data Profile",
             "Beralih ke Halo",
             "Cek Nomor 4G Anda",
             "Lacak Pesanan Kartu",
-            "Migrasi Esim",
-            "Beli Kartu Perdana"
+            "Ganti Kartu/ Migrasi ke 4G"
         ];
 
         const JOURNEY_MAP = {
             'grapari-mobile': [
-                { title: 'Onboarding & Acquisition', desc: 'Beli Kartu Perdana, Migrasi eSIM, Beralih ke Halo', capabilities: ['Beli Kartu Perdana', 'Migrasi Esim', 'Beralih ke Halo'] },
+                { title: 'Onboarding & Acquisition', desc: 'Beli Kartu Perdana, Beli eSIM, Beralih ke Halo', capabilities: ['Beli Kartu Perdana', 'Beli eSIM Telkomsel', 'Beralih ke Halo'] },
                 { title: 'Account & Billing', desc: 'Cek & Bayar Tagihan, Perbaikan Profile', capabilities: ['Cek & Bayar Tagihan Halo', 'Perbaikan Data Profile'] },
                 { title: 'Connectivity & Fulfillment', desc: 'Migrasi 4G, Cek 4G, Lacak Pesanan Kartu', capabilities: ['Ganti Kartu/ Migrasi ke 4G', 'Cek Nomor 4G Anda', 'Lacak Pesanan Kartu'] }
             ],
@@ -501,63 +627,166 @@
         let statusChartInstance = null;
         let categoryChartInstance = null;
 
+        /* MODAL JOURNEY MAP INTERAKTIF DENGAN ALUR DETIL UNTUK SELURUH MODUL */
         function openJourneyModal() {
             const titleEl = document.getElementById('modal-journey-title');
             const contentEl = document.getElementById('modal-journey-content');
 
             if (currentMainMenu === 'ivr') {
-                titleEl.innerText = 'IVR Journey Map & Testing Matrix';
+                titleEl.innerText = 'IVR Interactive Journey Map & Call Flow Architecture';
                 contentEl.innerHTML = `
-                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/80 space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
-                            <span class="font-bold text-sm text-red-400 flex items-center gap-2">
-                                <i data-lucide="smartphone" class="w-4 h-4"></i> Telkomsel & OLO Call Route
-                            </span>
-                            <span class="text-[10px] bg-red-950/60 text-red-300 border border-red-800/50 px-2 py-0.5 rounded font-semibold">Priority & Reguler</span>
+                    <div class="space-y-6">
+                        <!-- Header Call Routing -->
+                        <div class="bg-slate-800/90 rounded-xl p-4 border border-slate-700/80 space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-700/80 pb-2">
+                                <span class="font-bold text-sm text-red-400 flex items-center gap-2">
+                                    <i data-lucide="phone-call" class="w-4 h-4"></i> Pre-Entry & Provider Routing Engine
+                                </span>
+                                <span class="text-[10px] bg-red-950/80 text-red-300 border border-red-800 px-2 py-0.5 rounded font-semibold">Priority & Reguler Handling</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="bg-slate-900/80 p-3 rounded-lg border border-amber-500/30">
+                                    <span class="text-amber-400 font-bold block mb-1">🌐 Provider Telkomsel:</span>
+                                    <p class="text-slate-300">Greeting IVR &rarr; Pengecekan Tier (Priority/Reguler) &rarr; Pilih Produk (Halo / Prabayar / IndiHome Eznet) &rarr; Masuk Menu Utama 1-4 & 0.</p>
+                                </div>
+                                <div class="bg-slate-900/80 p-3 rounded-lg border border-sky-500/30">
+                                    <span class="text-sky-400 font-bold block mb-1">📞 Provider OLO (Indosat / XL / Axis):</span>
+                                    <p class="text-slate-300">Greeting OLO &rarr; Direct Route & Transfer Officer (Escalation Direct 0. Berbicara dengan Officer).</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-700/50 space-y-1.5">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pre-Entry Call Options</span>
-                            <p class="text-slate-300">Greeting IVR &rarr; Input Nomor Telepon & Select Product</p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                                <div class="p-2.5 bg-slate-900 rounded border border-amber-500/30">
-                                    <strong class="text-amber-400 block mb-0.5">🌐 Telkomsel Provider:</strong> Halo, Prabayar, Indihome / Eznet.
+                        <!-- Menu Flow Cards Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sky-400">1. Pembelian Paket</span>
+                                    <span class="px-2 py-0.5 text-[9px] bg-sky-950 text-sky-300 border border-sky-800 rounded">Telkomsel Only</span>
                                 </div>
-                                <div class="p-2.5 bg-slate-900 rounded border border-sky-500/30">
-                                    <strong class="text-sky-400 block mb-0.5">📞 OLO Provider:</strong> Direct Escalation ke Officer.
+                                <div class="text-slate-300 space-y-1">
+                                    <p>• Putar Promo/Iklan Paket OMG & Paket Rekomendasi.</p>
+                                    <p>• Tekan 0 untuk Beli via Officer (Biaya Layanan Rp300).</p>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 space-y-1.5">
-                                <span class="font-bold text-sky-400 block">1. Pembelian Paket</span>
-                                <p class="text-slate-400">Putar Iklan Paket OMG &rarr; 0. Berbicara dengan Officer (Biaya Rp300)</p>
+                            <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-emerald-400">2. Informasi Nomor PUK</span>
+                                    <span class="px-2 py-0.5 text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-800 rounded">Verifikasi NIK KTP</span>
+                                </div>
+                                <div class="text-slate-300 space-y-1">
+                                    <p>• Input 16 Digit NIK KTP Pelanggan.</p>
+                                    <p>• <strong class="text-emerald-400">Verified:</strong> Putar Nomor PUK &rarr; Lanjut Survey CSAT (Rating 1-5).</p>
+                                    <p>• <strong class="text-rose-400">Not Verified:</strong> Fallback Transfer Officer (Gagal Identifikasi).</p>
+                                </div>
                             </div>
 
-                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 space-y-1.5">
-                                <span class="font-bold text-emerald-400 block">2. Informasi Nomor PUK</span>
-                                <p class="text-slate-400">Input NIK KTP Pelanggan (Verified / Not Verified)</p>
+                            <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-amber-400">3. Informasi Ganti Kartu</span>
+                                    <span class="px-2 py-0.5 text-[9px] bg-amber-950 text-amber-300 border border-amber-800 rounded">GraPARI & Self-Service</span>
+                                </div>
+                                <div class="text-slate-300 space-y-1">
+                                    <p>• Putar Informasi Persyaratan Ganti Kartu di GraPARI/Online.</p>
+                                    <p>• Pilihan Lanjutan Direct Transfer Officer.</p>
+                                </div>
                             </div>
 
-                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 space-y-1.5">
-                                <span class="font-bold text-amber-400 block">3. Informasi Ganti Kartu</span>
-                                <p class="text-slate-300">Putar Informasi Syarat GraPARI & Direct Transfer Officer</p>
-                            </div>
-
-                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 space-y-1.5">
-                                <span class="font-bold text-rose-400 block">4. Keluhan (Biaya Rp300)</span>
-                                <p class="text-slate-400">Internet & Aktivasi Paket Troubleshoot & Transfer Officer</p>
+                            <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-rose-400">4. Keluhan Service (Tarif Rp300)</span>
+                                    <span class="px-2 py-0.5 text-[9px] bg-rose-950 text-rose-300 border border-rose-800 rounded">Troubleshooting Engine</span>
+                                </div>
+                                <div class="text-slate-300 space-y-1">
+                                    <p>• <strong class="text-slate-200">Tidak Bisa Internet:</strong> Auto-Refresh Network &rarr; Tes Koneksi OK/Not OK &rarr; Fallback Officer.</p>
+                                    <p>• <strong class="text-slate-200">Gagal Aktivasi Paket:</strong> Petunjuk Restart HP &rarr; Status Check OK/Not OK &rarr; Fallback Officer.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
-            } else if (currentMainMenu === 'grapari-mobile') {
-                titleEl.innerText = 'GraPARI Online Mobile - Journey Map';
-                contentEl.innerHTML = `<p class="text-slate-300">Capability pengetesan mobile services (eSIM, Perdana, Halo, dsb).</p>`;
+            } else if (currentMainMenu === 'grapari-indihome') {
+                titleEl.innerText = 'GraPARI Online IndiHome - Detailed Journey Map';
+                contentEl.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-slate-800/90 p-4 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-red-400 text-sm mb-1">🏠 Arsitektur Alur Layanan Online IndiHome</h4>
+                            <p class="text-slate-400 text-xs">Peta langkah pengetesan fitur ketersediaan, billing, dan penanganan gangguan teknis pelanggan broadband.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-sky-400 block">1. Pasang Baru</span>
+                                <p class="text-slate-300">Input Alamat/Cek Coverage Jaringan Fiber &rarr; Pilih Paket (Speed/TV/Telp) &rarr; Upload KTP & Identitas &rarr; Penjadwalan Teknisi & Registrasi ID.</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-sky-400 block">2. Lacak Proses Permintaan</span>
+                                <p class="text-slate-300">Input No Tiket / Registrasi &rarr; Validasi Status (Pemasangan / Verifikasi Data / On-Site Teknisi / Layanan Aktif).</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-emerald-400 block">3. Cek & Bayar Tagihan IndiHome</span>
+                                <p class="text-slate-300">Input Nomor IndiHome / ID Pelanggan &rarr; Tampil Rincian Tagihan & Periode &rarr; Redirect Gateway Pembayaran &rarr; Status Lunas.</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-amber-400 block">4. Berhenti Langganan Sementara</span>
+                                <p class="text-slate-300">Verifikasi Kepemilikan & OTP &rarr; Pilih Durasi Pause Layanan &rarr; Konfirmasi Alasan & Suspend Sementara Aktif.</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-amber-400 block">5. Lanjutkan Langganan</span>
+                                <p class="text-slate-300">Verifikasi Akun & Pengecekan Tunggakan &rarr; Konfirmasi Re-aktivasi &rarr; Sinyal Broadband Kembali Aktif.</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-rose-400 block">6. Cek Kondisi Jaringan IndiHome</span>
+                                <p class="text-slate-300">Input ID Pelanggan &rarr; Diagnostic System Ping ONT / Modem & Optical Line Test &rarr; Panduan Restart Modul & AUTO Issue Ticket Generation.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
             } else {
-                titleEl.innerText = 'GraPARI Online IndiHome - Journey Map';
-                contentEl.innerHTML = `<p class="text-slate-300">Capability pengetesan IndiHome (Pasang baru, Tagihan, Cek Jaringan, dsb).</p>`;
+                titleEl.innerText = 'GraPARI Online Mobile - Detailed Journey Map';
+                contentEl.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-slate-800/90 p-4 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-emerald-400 text-sm mb-1">📱 Arsitektur Alur Layanan GraPARI Online Mobile</h4>
+                            <p class="text-slate-400 text-xs">Peta langkah pengetesan fitur kartu perdana, eSIM, billing Halo, dan migrasi jaringan pelanggan seluler.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-sky-400 block">1. Beli Kartu Perdana</span>
+                                <p class="text-slate-300">Pilih Nomor Cantik/Reguler &rarr; Pilih Paket Data &rarr; Validasi NIK & KK &rarr; Pilih Opsi Pengiriman Kurir & Pembayaran.</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-sky-400 block">2. Beli eSIM Telkomsel</span>
+                                <p class="text-slate-300">Cek Kompatibilitas Perangkat &rarr; Pilih Paket eSIM &rarr; Verifikasi Email & NIK &rarr; Generasi QR Code eSIM Instant.</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-emerald-400 block">3. Cek & Bayar Tagihan Halo</span>
+                                <p class="text-slate-300">Input Nomor Kartu Halo &rarr; Tampil Rincian Tagihan/Pemakaian &rarr; Proses Payment Gateway &rarr; Notifikasi Lunas.</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-emerald-400 block">4. Perbaikan Data Profile</span>
+                                <p class="text-slate-300">Verifikasi OTP & Biometric/NIK &rarr; Update Alamat Tagihan / Email / Data Diri &rarr; Konfirmasi Perubahan Data.</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-amber-400 block">5. Beralih ke Halo (Migrasi Postpaid)</span>
+                                <p class="text-slate-300">Cek Kelayakan Nomor Prabayar &rarr; Pilih Paket Halo & Limit Kredit &rarr; Verifikasi Identitas & Conversion SIM Aktif.</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-purple-400 block">6. Cek Nomor 4G Anda</span>
+                                <p class="text-slate-300">Input Nomor Telepon &rarr; Pengecekan Sistem Dikte SIM & Perangkat &rarr; Hasil Status (Sudah 4G / Perlu Ganti SIM).</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-sky-400 block">7. Lacak Pesanan Kartu</span>
+                                <p class="text-slate-300">Input Nomor Order / Resi Pengiriman &rarr; Live Tracking Status Pengiriman Kurir.</p>
+                            </div>
+                            <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                                <span class="font-bold text-amber-400 block">8. Ganti Kartu / Migrasi ke 4G</span>
+                                <p class="text-slate-300">Pilih Alasan (Kartu Rusak/Hilang/Upgrade) &rarr; Verifikasi Data Diri &rarr; Pilih Pengiriman SIM Baru / Ambil di GraPARI.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
 
             safeCreateIcons();
@@ -664,6 +893,7 @@
                         <th class="py-3 px-3 w-10 text-center">No</th>
                         <th class="py-3 px-3 w-28">Tanggal</th>
                         <th class="py-3 px-3 w-28">Ticket Ref</th>
+                        <th class="py-3 px-3 w-28">Tester PIC</th>
                         <th class="py-3 px-3 w-28">Provider</th>
                         <th class="py-3 px-3 w-32">No. Telepon</th>
                         <th class="py-3 px-3 w-28">Severity</th>
@@ -684,6 +914,7 @@
                         <th class="py-3 px-3 w-10 text-center">No</th>
                         <th class="py-3 px-3 w-28">Tanggal</th>
                         <th class="py-3 px-3 w-28">Ticket Ref</th>
+                        <th class="py-3 px-3 w-28">Tester PIC</th>
                         <th class="py-3 px-3 w-32">Severity</th>
                         <th class="py-3 px-3 w-48">Capability</th>
                         <th class="py-3 px-3">Wording / Step Pengetesan</th>
@@ -944,7 +1175,7 @@
             const sortDateDir = document.getElementById('sort-date').value;
 
             let filtered = dataset.filter(item => {
-                const searchStr = ((item.ticketId || '') + (item.step || '') + (item.detail || '') + (item.desc || '') + (item.propose || '') + (item.capability || '') + (item.layanan || '') + (item.callerProvider || '') + (item.phone || '')).toLowerCase();
+                const searchStr = ((item.ticketId || '') + (item.tester || '') + (item.step || '') + (item.detail || '') + (item.desc || '') + (item.propose || '') + (item.capability || '') + (item.layanan || '') + (item.callerProvider || '') + (item.phone || '')).toLowerCase();
                 const matchSearch = searchStr.includes(search);
                 const matchRes = filterRes === 'ALL' || item.result === filterRes || (filterRes === 'Pending' && item.result !== 'Passed' && item.result !== 'Failed');
                 const matchSev = filterSev === 'ALL' || item.severity === filterSev || (!item.severity && filterSev === 'Minor / Cosmetic');
@@ -969,7 +1200,7 @@
             document.getElementById('filtered-count').innerText = filtered.length;
 
             if (filtered.length === 0) {
-                body.innerHTML = `<tr><td colspan="15" class="py-12 text-center text-slate-400">Database kosong / Data tidak ditemukan. Klik <strong>"Record Test"</strong>.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="16" class="py-12 text-center text-slate-400">Database kosong / Data tidak ditemukan. Klik <strong>"Record Test"</strong>.</td></tr>`;
                 return;
             }
 
@@ -995,12 +1226,14 @@
                 }
 
                 const ticketBadge = item.ticketId ? `<span class="px-2 py-0.5 text-[10px] font-mono font-bold bg-slate-800 text-amber-300 rounded">${item.ticketId}</span>` : '-';
+                const testerBadge = item.tester ? `<span class="px-2 py-0.5 text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-300 rounded">${item.tester}</span>` : '-';
 
                 if (currentMainMenu === 'ivr') {
                     tr.innerHTML = `
                         <td class="py-3 px-3 text-center text-slate-500 font-medium">${index + 1}</td>
                         <td class="py-3 px-3 whitespace-nowrap font-medium text-slate-700 bg-amber-50/30 rounded">${item.date || '-'}</td>
                         <td class="py-3 px-3 text-center">${ticketBadge}</td>
+                        <td class="py-3 px-3 text-center">${testerBadge}</td>
                         <td class="py-3 px-3 font-semibold text-slate-700">${item.callerProvider || '-'}</td>
                         <td class="py-3 px-3 text-slate-600 font-mono">${item.phone || '-'}</td>
                         <td class="py-3 px-3 text-center">${getSeverityBadge(item.severity)}</td>
@@ -1028,6 +1261,7 @@
                         <td class="py-3 px-3 text-center text-slate-500 font-medium">${index + 1}</td>
                         <td class="py-3 px-3 whitespace-nowrap font-medium text-slate-700 bg-amber-50/30 rounded">${item.date || '-'}</td>
                         <td class="py-3 px-3 text-center">${ticketBadge}</td>
+                        <td class="py-3 px-3 text-center">${testerBadge}</td>
                         <td class="py-3 px-3 text-center">${getSeverityBadge(item.severity)}</td>
                         <td class="py-3 px-3 font-semibold text-slate-800">${item.capability || '-'}</td>
                         <td class="py-3 px-3 text-slate-700">${item.step}</td>
@@ -1456,8 +1690,6 @@
 
             categorySelect.innerHTML = '';
 
-            // LOGIC UTAMA PENYESUAIAN OLO:
-            // Sembunyikan field Tier untuk OLO / Indihome
             if (provider === 'OLO' || layanan === "Indihome / Eznet") {
                 if (wrapperTier) wrapperTier.classList.add('hidden');
                 if (tierEl) tierEl.removeAttribute('required');
@@ -1466,10 +1698,9 @@
                 if (tierEl) tierEl.setAttribute('required', 'required');
             }
 
-            // Jika Provider = OLO, Langsung set Kategori ke "0. Berbicara dengan Officer"
             if (provider === 'OLO') {
                 categorySelect.innerHTML = `<option value="0. Berbicara dengan Officer" selected>0. Berbicara dengan Officer (OLO Escalation)</option>`;
-                categorySelect.disabled = true; // Kunci pilihan agar tidak membingungkan
+                categorySelect.disabled = true;
             } else {
                 categorySelect.disabled = false;
                 categorySelect.innerHTML = '<option value="" disabled selected>-- Pilih Kategori Menu --</option>';
@@ -1504,7 +1735,6 @@
             const category = categorySelect.value;
             stepsContainer.innerHTML = '';
 
-            // Jika OLO, Alur Otomatis Langsung Eskalasi Officer
             if (provider === 'OLO' || category === "0. Berbicara dengan Officer") {
                 renderStepSelect("step-1", "Step 1 : Direct Escalation", ["0. Berbicara dengan Officer"]);
             } 
@@ -1643,19 +1873,19 @@
             const idVal = document.getElementById('form-id').value;
             const resVal = document.getElementById('form-result').value;
             
-            // FITUR BARU: Auto-Generate Defect Ticket ID jika hasil 'Failed'
             let ticketIdVal = document.getElementById('form-ticket-id').value;
             if (resVal === 'Failed' && !ticketIdVal) {
                 const prefix = currentMainMenu === 'ivr' ? 'DEF-IVR' : (currentMainMenu === 'grapari-indihome' ? 'DEF-IND' : 'DEF-MOB');
                 const randomNum = Math.floor(1000 + Math.random() * 9000);
                 ticketIdVal = `${prefix}-${randomNum}`;
             } else if (resVal !== 'Failed') {
-                ticketIdVal = ''; // Reset jika status berubah jadi Passed
+                ticketIdVal = '';
             }
 
             let newItem = {
                 id: idVal ? idVal : String(Date.now()),
                 ticketId: ticketIdVal,
+                tester: activeUser ? activeUser.name : 'Unknown PIC',
                 date: document.getElementById('form-date').value,
                 result: resVal,
                 severity: document.getElementById('form-severity').value,
@@ -1726,6 +1956,7 @@
                     "No": index + 1,
                     "Tanggal Testing": item.date || "-",
                     "Ticket Reference": item.ticketId || "-",
+                    "Tester PIC": item.tester || "-",
                     "Caller Provider": item.callerProvider || "-",
                     "No. Telepon": item.phone || "-",
                     "Severity": item.severity || "Minor",
@@ -1743,6 +1974,7 @@
                     "No": index + 1,
                     "Tanggal Testing": item.date || "-",
                     "Ticket Reference": item.ticketId || "-",
+                    "Tester PIC": item.tester || "-",
                     "Severity": item.severity || "Minor",
                     "Capability": item.capability || "-",
                     "Wording / Step Pengetesan": item.step || "-",
@@ -1816,7 +2048,8 @@
 
             issues.forEach((item, i) => {
                 const ticketStr = item.ticketId ? `[${item.ticketId}] ` : '';
-                summaryText += `${i + 1}. ${ticketStr}[${item.severity || 'Minor'}] ${item.layanan || item.capability || 'Feature'}\n`;
+                const testerStr = item.tester ? `(PIC: ${item.tester}) ` : '';
+                summaryText += `${i + 1}. ${ticketStr}${testerStr}[${item.severity || 'Minor'}] ${item.layanan || item.capability || 'Feature'}\n`;
                 summaryText += `   • Issue: ${item.desc || 'No Description'}\n`;
                 summaryText += `   • Solusi: ${item.propose || '-'}\n\n`;
             });
@@ -1834,16 +2067,13 @@
             }
         }
 
-        window.onload = function() {
-            try {
-                switchMainMenu('ivr');
-            } catch (err) {
-                console.error("Gagal melakukan inisialisasi awal:", err);
-            }
-        };
+        // Inisialisasi Aplikasi Sesuai Status Auth
         document.addEventListener('DOMContentLoaded', () => {
-            renderDashboardTable();
-            recalculateHealthIndex();
+            try {
+                checkAuthSession();
+            } catch (err) {
+                console.error("Gagal melakukan inisialisasi awal dashboard:", err);
+            }
         });
     </script>
 </body>

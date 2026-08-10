@@ -12,6 +12,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- SheetJS for Export Excel (.xlsx) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <!-- Firebase JS SDK (v10 Compat for CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .main-menu-active { background-color: #0284c7; color: #ffffff; font-weight: 600; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
@@ -35,6 +40,11 @@
                 </div>
                 <h2 class="text-2xl font-bold text-white tracking-tight">AVINDHA Dashboard</h2>
                 <p class="text-xs text-slate-400 mt-1">Service Assurance & Quality Control System</p>
+                
+                <!-- Cloud Sync Status Indicator -->
+                <div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-[10px] text-emerald-400 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Cloud Multi-Device Sync Ready
+                </div>
             </div>
 
             <!-- Login Form -->
@@ -104,6 +114,11 @@
 
                 <!-- USER PROFILE & BUTTON ACTION HEADER -->
                 <div class="flex items-center space-x-3">
+                    <!-- Realtime Cloud Sync Badge -->
+                    <div id="cloud-sync-badge" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/80 border border-emerald-800 text-emerald-300 rounded-xl text-[11px] font-semibold">
+                        <i data-lucide="wifi" class="w-3.5 h-3.5 animate-pulse text-emerald-400"></i> Realtime Sync
+                    </div>
+
                     <div class="hidden sm:flex items-center gap-2 px-3 py-1 bg-slate-800 border border-slate-700/80 rounded-xl">
                         <div class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs uppercase" id="user-avatar-initial">T</div>
                         <div class="text-left">
@@ -361,7 +376,7 @@
         </main>
     </div>
 
-    <!-- MODAL 1: JOURNEY MAP REFERENCE (COMPREHENSIVE MULTI-MODULE) -->
+    <!-- MODAL 1: JOURNEY MAP REFERENCE -->
     <div id="journey-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 text-slate-100 rounded-2xl shadow-2xl w-full max-w-5xl border border-slate-700 overflow-hidden flex flex-col max-h-[92vh]">
             <div class="px-6 py-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
@@ -488,6 +503,21 @@
 
     <!-- SCRIPT LOGIC ENGINE -->
     <script>
+        // --- FIREBASE REALTIME DATABASE SYNC SETUP ---
+        const firebaseConfig = {
+            databaseURL: "https://avindha-qa-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            }
+        } catch (e) {
+            console.warn("Firebase tidak terkonfigurasi, beralih ke penyimpanan lokal.", e);
+        }
+
         // --- AUTHENTICATION MODULE ---
         const REGISTERED_USERS = {
             'admin': { name: 'Admin Assurance', role: 'Supervisor', pass: 'admin123' },
@@ -546,6 +576,7 @@
             }
 
             switchMainMenu('ivr');
+            initCloudRealtimeListeners();
             safeCreateIcons();
         }
 
@@ -627,7 +658,47 @@
         let statusChartInstance = null;
         let categoryChartInstance = null;
 
-        /* MODAL JOURNEY MAP INTERAKTIF DENGAN ALUR DETIL UNTUK SELURUH MODUL */
+        // REAL-TIME LISTENER DARI CLOUD DATABASE FIREBASE
+        function initCloudRealtimeListeners() {
+            if (!db) return;
+            
+            const syncBadge = document.getElementById('cloud-sync-badge');
+            if (syncBadge) syncBadge.classList.remove('hidden');
+
+            db.ref('avindha_qa_data/ivr').on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val && Array.isArray(val)) {
+                    ivrData = val;
+                    localStorage.setItem('tks_ivr_data_v13', JSON.stringify(ivrData));
+                    if (currentMainMenu === 'ivr') refreshUI();
+                }
+            });
+
+            db.ref('avindha_qa_data/grapari_indihome').on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val && Array.isArray(val)) {
+                    grapariIndihomeData = val;
+                    localStorage.setItem('tks_grapari_indihome_v13', JSON.stringify(grapariIndihomeData));
+                    if (currentMainMenu === 'grapari-indihome') refreshUI();
+                }
+            });
+
+            db.ref('avindha_qa_data/grapari_mobile').on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val && Array.isArray(val)) {
+                    grapariMobileData = val;
+                    localStorage.setItem('tks_grapari_mobile_v13', JSON.stringify(grapariMobileData));
+                    if (currentMainMenu === 'grapari-mobile') refreshUI();
+                }
+            });
+        }
+
+        function refreshUI() {
+            updateDashboard();
+            renderTable();
+            safeCreateIcons();
+        }
+
         function openJourneyModal() {
             const titleEl = document.getElementById('modal-journey-title');
             const contentEl = document.getElementById('modal-journey-content');
@@ -636,7 +707,6 @@
                 titleEl.innerText = 'IVR Interactive Journey Map & Call Flow Architecture';
                 contentEl.innerHTML = `
                     <div class="space-y-6">
-                        <!-- Header Call Routing -->
                         <div class="bg-slate-800/90 rounded-xl p-4 border border-slate-700/80 space-y-3">
                             <div class="flex items-center justify-between border-b border-slate-700/80 pb-2">
                                 <span class="font-bold text-sm text-red-400 flex items-center gap-2">
@@ -656,7 +726,6 @@
                             </div>
                         </div>
 
-                        <!-- Menu Flow Cards Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-2">
                                 <div class="flex items-center justify-between">
@@ -717,19 +786,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-sky-400 block">1. Pasang Baru</span>
-                                <p class="text-slate-300">Input Alamat/Cek Coverage Jaringan Fiber &rarr; Pilih Paket (Speed/TV/Telp) &rarr; Upload KTP & Identitas &rarr; Penjadwalan Teknisi & Registrasi ID.</p>
+                                <p class="text-slate-300">Input Alamat/Cek Coverage Jaringan Fiber &rarr; Pilih Paket &rarr; Upload KTP & Identitas &rarr; Penjadwalan Teknisi.</p>
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-sky-400 block">2. Lacak Proses Permintaan</span>
-                                <p class="text-slate-300">Input No Tiket / Registrasi &rarr; Validasi Status (Pemasangan / Verifikasi Data / On-Site Teknisi / Layanan Aktif).</p>
+                                <p class="text-slate-300">Input No Tiket &rarr; Validasi Status (Pemasangan / Verifikasi Data / On-Site Teknisi / Layanan Aktif).</p>
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-emerald-400 block">3. Cek & Bayar Tagihan IndiHome</span>
-                                <p class="text-slate-300">Input Nomor IndiHome / ID Pelanggan &rarr; Tampil Rincian Tagihan & Periode &rarr; Redirect Gateway Pembayaran &rarr; Status Lunas.</p>
+                                <p class="text-slate-300">Input ID Pelanggan &rarr; Tampil Rincian Tagihan &rarr; Gateway Pembayaran &rarr; Status Lunas.</p>
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-amber-400 block">4. Berhenti Langganan Sementara</span>
-                                <p class="text-slate-300">Verifikasi Kepemilikan & OTP &rarr; Pilih Durasi Pause Layanan &rarr; Konfirmasi Alasan & Suspend Sementara Aktif.</p>
+                                <p class="text-slate-300">Verifikasi Kepemilikan & OTP &rarr; Pilih Durasi Pause Layanan &rarr; Suspend Sementara Aktif.</p>
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-amber-400 block">5. Lanjutkan Langganan</span>
@@ -737,7 +806,7 @@
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-rose-400 block">6. Cek Kondisi Jaringan IndiHome</span>
-                                <p class="text-slate-300">Input ID Pelanggan &rarr; Diagnostic System Ping ONT / Modem & Optical Line Test &rarr; Panduan Restart Modul & AUTO Issue Ticket Generation.</p>
+                                <p class="text-slate-300">Input ID Pelanggan &rarr; Diagnostic System Ping ONT / Modem &rarr; Panduan Restart Modul & Issue Ticket.</p>
                             </div>
                         </div>
                     </div>
@@ -754,27 +823,27 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-sky-400 block">1. Beli Kartu Perdana</span>
-                                <p class="text-slate-300">Pilih Nomor Cantik/Reguler &rarr; Pilih Paket Data &rarr; Validasi NIK & KK &rarr; Pilih Opsi Pengiriman Kurir & Pembayaran.</p>
+                                <p class="text-slate-300">Pilih Nomor Cantik/Reguler &rarr; Pilih Paket Data &rarr; Validasi NIK & KK &rarr; Opsi Pengiriman Kurir & Payment.</p>
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-sky-400 block">2. Beli eSIM Telkomsel</span>
-                                <p class="text-slate-300">Cek Kompatibilitas Perangkat &rarr; Pilih Paket eSIM &rarr; Verifikasi Email & NIK &rarr; Generasi QR Code eSIM Instant.</p>
+                                <p class="text-slate-300">Cek Kompatibilitas Perangkat &rarr; Pilih Paket eSIM &rarr; Verifikasi Email & NIK &rarr; QR Code Instant.</p>
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-emerald-400 block">3. Cek & Bayar Tagihan Halo</span>
-                                <p class="text-slate-300">Input Nomor Kartu Halo &rarr; Tampil Rincian Tagihan/Pemakaian &rarr; Proses Payment Gateway &rarr; Notifikasi Lunas.</p>
+                                <p class="text-slate-300">Input Nomor Kartu Halo &rarr; Tampil Rincian Tagihan &rarr; Payment Gateway &rarr; Notifikasi Lunas.</p>
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-emerald-400 block">4. Perbaikan Data Profile</span>
-                                <p class="text-slate-300">Verifikasi OTP & Biometric/NIK &rarr; Update Alamat Tagihan / Email / Data Diri &rarr; Konfirmasi Perubahan Data.</p>
+                                <p class="text-slate-300">Verifikasi OTP & NIK &rarr; Update Alamat Tagihan / Email / Data Diri &rarr; Konfirmasi Perubahan.</p>
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-amber-400 block">5. Beralih ke Halo (Migrasi Postpaid)</span>
-                                <p class="text-slate-300">Cek Kelayakan Nomor Prabayar &rarr; Pilih Paket Halo & Limit Kredit &rarr; Verifikasi Identitas & Conversion SIM Aktif.</p>
+                                <p class="text-slate-300">Cek Kelayakan Prabayar &rarr; Pilih Paket Halo & Limit Kredit &rarr; Verifikasi & Conversion SIM Aktif.</p>
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-purple-400 block">6. Cek Nomor 4G Anda</span>
-                                <p class="text-slate-300">Input Nomor Telepon &rarr; Pengecekan Sistem Dikte SIM & Perangkat &rarr; Hasil Status (Sudah 4G / Perlu Ganti SIM).</p>
+                                <p class="text-slate-300">Input Nomor Telepon &rarr; Pengecekan SIM & Perangkat &rarr; Status (Sudah 4G / Perlu Ganti SIM).</p>
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-sky-400 block">7. Lacak Pesanan Kartu</span>
@@ -782,7 +851,7 @@
                             </div>
                             <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
                                 <span class="font-bold text-amber-400 block">8. Ganti Kartu / Migrasi ke 4G</span>
-                                <p class="text-slate-300">Pilih Alasan (Kartu Rusak/Hilang/Upgrade) &rarr; Verifikasi Data Diri &rarr; Pilih Pengiriman SIM Baru / Ambil di GraPARI.</p>
+                                <p class="text-slate-300">Pilih Alasan (Rusak/Hilang/Upgrade) &rarr; Verifikasi Data Diri &rarr; Pengiriman SIM / Ambil GraPARI.</p>
                             </div>
                         </div>
                     </div>
@@ -808,12 +877,15 @@
                 if (currentMainMenu === 'ivr') {
                     ivrData = data;
                     localStorage.setItem('tks_ivr_data_v13', JSON.stringify(ivrData));
+                    if (db) db.ref('avindha_qa_data/ivr').set(ivrData);
                 } else if (currentMainMenu === 'grapari-indihome') {
                     grapariIndihomeData = data;
                     localStorage.setItem('tks_grapari_indihome_v13', JSON.stringify(grapariIndihomeData));
+                    if (db) db.ref('avindha_qa_data/grapari_indihome').set(grapariIndihomeData);
                 } else {
                     grapariMobileData = data;
                     localStorage.setItem('tks_grapari_mobile_v13', JSON.stringify(grapariMobileData));
+                    if (db) db.ref('avindha_qa_data/grapari_mobile').set(grapariMobileData);
                 }
                 return true;
             } catch (err) {

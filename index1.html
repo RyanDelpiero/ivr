@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraPEx Incident Monitoring Dashboard</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .overflow-x-auto::-webkit-scrollbar { height: 6px; }
+        .overflow-x-auto::-webkit-scrollbar-track { background: #1e293b; }
+        .overflow-x-auto::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        .overflow-x-auto::-webkit-scrollbar-thumb:hover { background: #f87171; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-3.5 flex flex-wrap justify-between items-center gap-4 sticky top-0 z-40 shadow-xl">
+        <div class="flex items-center gap-4">
+            <div class="bg-red-600 text-white p-3 rounded-xl font-extrabold shadow-md transform hover:scale-105 transition-transform cursor-pointer">
+                <i class="fa-solid me-1.5 fa-desktop text-xl"></i> GraPEx
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold text-white tracking-tight">Monitoring Kendala</h1>
+                <p class="text-xs sm:text-sm text-slate-400">Real-time Area & Regional Incident Tracking System</p>
+            </div>
+        </div>
+        
+        <!-- Controls & Filters Bar -->
+        <div class="flex flex-wrap gap-2 sm:gap-2.5 text-xs sm:text-sm items-center">
+            <span class="text-slate-500 font-medium hidden md:inline"><i class="fa-solid fa-filter mr-1"></i>Filter:</span>
+            
+            <!-- Vendor Filter -->
+            <select id="filterVendor" class="bg-slate-800 border border-slate-700 rounded-full px-3 py-1.5 text-slate-200 focus:outline-none focus:border-red-500 transition shadow-inner cursor-pointer">
+                <option value="ALL">Semua Vendor</option>
+                <option value="Trilogi">Trilogi</option>
+                <option value="Nutech">Nutech</option>
+                <option value="STI">STI</option>
+                <option value="Mcash">Mcash</option>
+                <option value="Internal">Internal</option>
+            </select>
+
+            <!-- Area Filter -->
+            <select id="filterArea" class="bg-slate-800 border border-slate-700 rounded-full px-3 py-1.5 text-slate-200 focus:outline-none focus:border-red-500 transition shadow-inner cursor-pointer">
+                <option value="ALL">Semua Area</option>
+                <option value="1">Area 1</option>
+                <option value="2">Area 2</option>
+                <option value="3">Area 3</option>
+                <option value="4">Area 4</option>
+            </select>
+
+            <!-- Region Filter -->
+            <select id="filterRegion" class="bg-slate-800 border border-slate-700 rounded-full px-3 py-1.5 text-slate-200 focus:outline-none focus:border-red-500 transition shadow-inner cursor-pointer">
+                <option value="ALL">Semua Region</option>
+                <option value="BaliNusra">BaliNusra</option>
+                <option value="Eastern Jabotabek">Eastern Jabotabek</option>
+                <option value="Jakarta Banten">Jakarta Banten</option>
+                <option value="Jateng">Jateng</option>
+                <option value="Jatim">Jatim</option>
+                <option value="Jawa Barat">Jawa Barat</option>
+                <option value="Kalimantan">Kalimantan</option>
+                <option value="PapuaMaluku">PapuaMaluku</option>
+                <option value="Sulawesi">Sulawesi</option>
+                <option value="Sumbagsel">Sumbagsel</option>
+                <option value="Sumbagteng">Sumbagteng</option>
+                <option value="Sumbagut">Sumbagut</option>
+            </select>
+
+            <!-- Category Filter -->
+            <select id="filterCategory" class="bg-slate-800 border border-slate-700 rounded-full px-3 py-1.5 text-slate-200 focus:outline-none focus:border-red-500 transition shadow-inner cursor-pointer">
+                <option value="ALL">Semua Kategori</option>
+                <option value="Software">Software / Aplikasi</option>
+                <option value="Ganti Kartu">Ganti Kartu</option>
+                <option value="UPS">UPS / Smart UPS</option>
+                <option value="CPU Error">CPU Error</option>
+                <option value="Jaringan">Jaringan</option>
+                <option value="Camera">Camera</option>
+                <option value="Card Dispenser">Card Dispenser</option>
+                <option value="e-KTP Reader">e-KTP Reader</option>
+            </select>
+
+            <!-- Action Buttons -->
+            <button id="btnRefresh" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-full px-3.5 py-1.5 border border-slate-700 transition shadow flex items-center gap-1.5" title="Reset Filter">
+                <i class="fa-solid fa-sync-alt"></i> Reset
+            </button>
+            <button id="btnExport" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-full px-4 py-1.5 transition shadow flex items-center gap-1.5">
+                <i class="fa-solid fa-file-excel"></i> Export CSV
+            </button>
+            <button id="btnOpenModal" class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full px-4 py-1.5 transition shadow flex items-center gap-1.5">
+                <i class="fa-solid fa-plus"></i> Tambah Kendala
+            </button>
+        </div>
+    </header>
+
+    <main class="p-6 md:p-8 space-y-8 max-w-[1700px] mx-auto">
+        
+        <!-- KPI Summary Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl hover:border-red-900/50 transition duration-300">
+                <div class="flex justify-between items-center text-slate-500 mb-3">
+                    <span class="text-sm font-semibold uppercase tracking-wider">Total Tiket</span>
+                    <div class="bg-red-950/50 p-2.5 rounded-lg text-red-400">
+                        <i class="fa-solid fa-ticket text-xl"></i>
+                    </div>
+                </div>
+                <div id="kpiTotal" class="text-5xl font-extrabold text-white tracking-tighter">0</div>
+                <p class="text-sm text-slate-400 mt-2">Berdasarkan filter aktif</p>
+            </div>
+
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl hover:border-amber-900/50 transition duration-300">
+                <div class="flex justify-between items-center text-slate-500 mb-3">
+                    <span class="text-sm font-semibold uppercase tracking-wider">On Progress</span>
+                    <div class="bg-amber-950/50 p-2.5 rounded-lg text-amber-400">
+                        <i class="fa-solid fa-spinner text-xl fa-spin-pulse"></i>
+                    </div>
+                </div>
+                <div id="kpiProgress" class="text-5xl font-extrabold text-amber-400 tracking-tighter">0</div>
+                <p class="text-sm text-slate-400 mt-2">Dalam proses penanganan</p>
+            </div>
+
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl hover:border-emerald-900/50 transition duration-300">
+                <div class="flex justify-between items-center text-slate-500 mb-3">
+                    <span class="text-sm font-semibold uppercase tracking-wider">Done / Solved</span>
+                    <div class="bg-emerald-950/50 p-2.5 rounded-lg text-emerald-400">
+                        <i class="fa-solid fa-circle-check text-xl"></i>
+                    </div>
+                </div>
+                <div id="kpiDone" class="text-5xl font-extrabold text-emerald-400 tracking-tighter">0</div>
+                <p class="text-sm text-slate-400 mt-2">Isu berhasil ditangani</p>
+            </div>
+
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl hover:border-rose-900/50 transition duration-300">
+                <div class="flex justify-between items-center text-slate-500 mb-3">
+                    <span class="text-sm font-semibold uppercase tracking-wider">Bad Ticket</span>
+                    <div class="bg-rose-950/50 p-2.5 rounded-lg text-rose-400">
+                        <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                    </div>
+                </div>
+                <div id="kpiBadTicket" class="text-5xl font-extrabold text-rose-400 tracking-tighter">0</div>
+                <p class="text-sm text-slate-400 mt-2">Tiket tidak valid / salah info</p>
+            </div>
+        </section>
+
+        <!-- Visual Analytics Charts -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="bg-slate-900 p-7 rounded-2xl border border-slate-800 shadow-xl lg:col-span-2">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white tracking-tight flex items-center gap-2.5"><i class="fa-solid fa-chart-bar text-red-500"></i>Sebaran Kendala per Area</h3>
+                </div>
+                <div class="h-80">
+                    <canvas id="areaChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 p-7 rounded-2xl border border-slate-800 shadow-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white tracking-tight flex items-center gap-2.5"><i class="fa-solid fa-chart-pie text-red-500"></i>Komposisi Kategori</h3>
+                </div>
+                <div class="h-80 flex justify-center items-center relative">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Operational Data Table Section -->
+        <section class="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center flex-wrap gap-4 bg-slate-900/50">
+                <div class="flex items-center gap-3">
+                    <h3 class="text-lg font-semibold text-white tracking-tight">Log Kendala GraPEx</h3>
+                    <span id="badgeFilteredCount" class="bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1 rounded-full">0 Tiket</span>
+                </div>
+                <div class="relative w-full sm:w-80">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    <input id="searchInput" type="text" placeholder="Cari Terminal, Creator, GraPARI, dll..." 
+                           class="w-full bg-slate-800 border border-slate-700 rounded-full pl-11 pr-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500 transition shadow-inner">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-300">
+                    <thead class="text-xs uppercase bg-slate-800/60 text-slate-400 tracking-wider border-b border-slate-800">
+                        <tr>
+                            <th class="px-5 py-4 font-semibold">Tgl Raise / Solved</th>
+                            <th class="px-5 py-4 font-semibold">Terminal ID</th>
+                            <th class="px-5 py-4 font-semibold">Area / Region / GraPARI</th>
+                            <th class="px-5 py-4 font-semibold">Vendor</th>
+                            <th class="px-5 py-4 font-semibold">Creator</th>
+                            <th class="px-5 py-4 font-semibold">Kategori</th>
+                            <th class="px-5 py-4 font-semibold">Detail Issue</th>
+                            <th class="px-5 py-4 font-semibold">Handling</th>
+                            <th class="px-5 py-4 font-semibold text-center">Progress Status</th>
+                            <th class="px-5 py-4 font-semibold">Remarks & Notes</th>
+                            <th class="px-5 py-4 font-semibold text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-800">
+                        <!-- Dynamic Rows Generated from JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Bar -->
+            <div class="px-6 py-4 bg-slate-900/80 border-t border-slate-800 flex flex-wrap justify-between items-center gap-4 text-xs text-slate-400">
+                <div id="paginationInfo" class="font-medium">
+                    Menampilkan 0 - 0 dari 0 data
+                </div>
+                <div class="flex items-center gap-1.5" id="paginationButtons">
+                    <!-- Pagination Controls JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Form: Tambah / Edit Kendala -->
+    <div id="modalCreate" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center hidden p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl p-6 sm:p-8 space-y-5 my-8">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                <h3 id="modalTitle" class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-red-500"></i> Form Kendala GraPEx</h3>
+                <button id="btnCloseModal" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-times"></i></button>
+            </div>
+
+            <form id="formCreate" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Tanggal Raise *</label>
+                        <input type="date" id="inputTanggal" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Tanggal Update Solved</label>
+                        <input type="date" id="inputTanggalSolved" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Terminal ID *</label>
+                        <input type="text" id="inputTerminal" placeholder="T0000XXX / N0000XXX" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Vendor *</label>
+                        <select id="inputVendor" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                            <option value="Trilogi">Trilogi</option>
+                            <option value="Nutech">Nutech</option>
+                            <option value="STI">STI</option>
+                            <option value="Mcash">Mcash</option>
+                            <option value="Internal">Internal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Area *</label>
+                        <select id="inputArea" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                            <option value="1">Area 1</option>
+                            <option value="2">Area 2</option>
+                            <option value="3">Area 3</option>
+                            <option value="4">Area 4</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Region *</label>
+                        <select id="inputRegion" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                            <option value="BaliNusra">BaliNusra</option>
+                            <option value="Eastern Jabotabek">Eastern Jabotabek</option>
+                            <option value="Jakarta Banten">Jakarta Banten</option>
+                            <option value="Jateng">Jateng</option>
+                            <option value="Jatim">Jatim</option>
+                            <option value="Jawa Barat">Jawa Barat</option>
+                            <option value="Kalimantan">Kalimantan</option>
+                            <option value="PapuaMaluku">PapuaMaluku</option>
+                            <option value="Sulawesi">Sulawesi</option>
+                            <option value="Sumbagsel">Sumbagsel</option>
+                            <option value="Sumbagteng">Sumbagteng</option>
+                            <option value="Sumbagut">Sumbagut</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">GraPARI *</label>
+                        <input type="text" id="inputGrapari" placeholder="Misal: GraPARI Painan" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Nama Creator *</label>
+                        <input type="text" id="inputCreator" placeholder="Nama Pelapor / Creator" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Job Function Creator *</label>
+                        <select id="inputJobFunction" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                            <option value="Customer Service">Customer Service</option>
+                            <option value="FOS">FOS</option>
+                            <option value="Team Leader">Team Leader</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Kategori Kendala *</label>
+                        <select id="inputCategory" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                            <option value="Software">Software</option>
+                            <option value="Ganti Kartu">Ganti Kartu</option>
+                            <option value="UPS">UPS / Smart UPS</option>
+                            <option value="CPU Error">CPU Error</option>
+                            <option value="Jaringan">Jaringan</option>
+                            <option value="Camera">Camera</option>
+                            <option value="Card Dispenser">Card Dispenser</option>
+                            <option value="e-KTP Reader">e-KTP Reader</option>
+                            <option value="Aplikasi">Aplikasi</option>
+                            <option value="Pembayaran">Pembayaran</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Metode Handling *</label>
+                        <select id="inputHandling" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                            <option value="Remote">Remote</option>
+                            <option value="Replace Spare Part">Replace Spare Part</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Progress Status *</label>
+                        <select id="inputProgress" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                            <option value="On Progress">🟡 On Progress</option>
+                            <option value="Done">🟢 Done</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Remarks</label>
+                    <select id="inputRemarks" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                        <option value="-">- Normal Ticket -</option>
+                        <option value="Bad Ticket">Bad Ticket</option>
+                        <option value="Pending Sparepart">Pending Sparepart</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Detail Kendala *</label>
+                    <textarea id="inputDetails" rows="2" placeholder="Jelaskan detail kendala..." required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Notes / Comment</label>
+                    <textarea id="inputNotes" rows="2" placeholder="Catatan tambahan hasil investigasi..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" id="btnCancelModal" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm text-slate-300">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-semibold text-white shadow">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Data & Logic -->
+    <script>
+        // Total 230 Records from sample data grapex_4.xlsx
+        let incidents = [
+          {"id": 1, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "T0000284", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Painan", "vendor": "Trilogi", "creator": "Sepryanda Yon", "jobFunction": "Customer Service", "category": "Software", "details": "Tidak bisa akses dengan keterangan \"Mohon maaf, terjadi gangguan pada layanan Telkomsel\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 2, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "T0000266", "area": "3", "region": "Jatim", "grapari": "GraPARI Pamekasan", "vendor": "Trilogi", "creator": "Sondang Debora Sinaga", "jobFunction": "FOS", "category": "Software", "details": "Tidak bisa akses dengan keterangan \"Mohon maaf, terjadi gangguan pada layanan Telkomsel\"", "handling": "Remote", "remarks": "Bad Ticket", "notes": "Salah menginfokan Terminal ID", "progress": "Done"},
+          {"id": 3, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "T0000351", "area": "2", "region": "Eastern Jabotabek", "grapari": "GraPARI Tambun", "vendor": "Trilogi", "creator": "Febrian", "jobFunction": "Team Leader", "category": "UPS", "details": "UPS tidak berfungsi sehingga mesin GraPEx bersuara", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 4, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "T0000313", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Kendari", "vendor": "Trilogi", "creator": "Revi", "jobFunction": "Customer Service", "category": "Software", "details": "Stuck di step \"Face Recognition\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 5, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "T0000378", "area": "1", "region": "Sumbagsel", "grapari": "GraPARI Lubuk Linggau", "vendor": "Trilogi", "creator": "Muhammad Abdillah Attaqi", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Saat ganti kartu loading lama hingga gagal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 6, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "T0000388", "area": "3", "region": "Jateng", "grapari": "GraPARI Sragen", "vendor": "Trilogi", "creator": "Venno Okta", "jobFunction": "Team Leader", "category": "Software", "details": "Tidak bisa akses dengan keterangan \"Mohon maaf, terjadi gangguan pada layanan Telkomsel\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 7, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "T0000377", "area": "1", "region": "Sumbagsel", "grapari": "GraPARI Bengkulu", "vendor": "Trilogi", "creator": "Akbil Revando", "jobFunction": "Customer Service", "category": "Software", "details": "Step Face Recognition tidak bisa dilanjut, stuck saat scan wajah", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 8, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "T0000332", "area": "2", "region": "Jawa Barat", "grapari": "GraPARI Garut", "vendor": "Trilogi", "creator": "Angga Sutedja", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Kendala ganti kartu", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 9, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000321", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Ambon", "vendor": "Trilogi", "creator": "Mita", "jobFunction": "Team Leader", "category": "Software", "details": "Tidak bisa akses dengan keterangan \"Mohon maaf, terjadi gangguan pada layanan Telkomsel\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 10, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000313", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Kendari", "vendor": "Trilogi", "creator": "Revi", "jobFunction": "Customer Service", "category": "Software", "details": "Stuck di step \"Face Recognition\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 11, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000322", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Waikabubak", "vendor": "Trilogi", "creator": "Agus", "jobFunction": "FOS", "category": "Software", "details": "Tidak bisa akses dengan keterangan \"Mohon maaf, terjadi gangguan pada layanan Telkomsel\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 12, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000369", "area": "3", "region": "Jateng", "grapari": "GraPARI Klaten", "vendor": "Trilogi", "creator": "Tia", "jobFunction": "Team Leader", "category": "UPS", "details": "UPS tidak berfungsi sehingga mesin GraPEx bersuara", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 13, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000211", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Yos Sudarso", "vendor": "Trilogi", "creator": "Budi", "jobFunction": "Customer Service", "category": "Software", "details": "Tidak bisa akses dengan keterangan \"Mohon maaf, terjadi gangguan pada layanan Telkomsel\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 14, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000364", "area": "4", "region": "Sulawesi", "grapari": "GraPARI ParePare", "vendor": "Trilogi", "creator": "Fitra", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Kendala ganti kartu. Stuck di step Face Recognition", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 15, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "L0000010", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Weda", "vendor": "Trilogi", "creator": "Wulandari Lestari", "jobFunction": "Team Leader", "category": "CPU Error", "details": "Layar mati, cpu mesin grapex mati mati terus.", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 16, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000383", "area": "3", "region": "Jateng", "grapari": "GraPARI Mungkid", "vendor": "Trilogi", "creator": "Ananda Bagus P", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Mesin Grapex tidak mengeluarkan kartu", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 17, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000267", "area": "3", "region": "Jatim", "grapari": "GraPARI Probolinggo", "vendor": "Trilogi", "creator": "Fadelis Ramadhani", "jobFunction": "FOS", "category": "Bill Acceptor Rupiah", "details": "Stuck di scan QR", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 18, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000277", "area": "3", "region": "Jatim", "grapari": "GraPARI Jombang", "vendor": "Trilogi", "creator": "Dewi Fatimah", "jobFunction": "Team Leader", "category": "Aplikasi", "details": "Aplikasi GraPEx Close/Keluar Sendiri saat Transaksi", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 19, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000389", "area": "1", "region": "Sumbagut", "grapari": "GraPARI Medan Karyajasa", "vendor": "Trilogi", "creator": "Indah Maharani Nst", "jobFunction": "Customer Service", "category": "Software", "details": "Stuck diproses cetak kartu", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 20, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000361", "area": "3", "region": "Jatim", "grapari": "GraPARI Lamongan", "vendor": "Trilogi", "creator": "Ananda Bagus P", "jobFunction": "FOS", "category": "e-KTP Reader", "details": "Gagal Verifikasi e-KTP di mesin GraPEx", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 21, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000204", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Emporium Pluit Jakarta", "vendor": "Trilogi", "creator": "Muhamad Iksan Hidayat", "jobFunction": "Team Leader", "category": "Camera", "details": "Stuck saat Ambil Foto Wajah", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 22, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000331", "area": "2", "region": "Jawa Barat", "grapari": "GraPARI Bantarkalong", "vendor": "Trilogi", "creator": "Asep Suherman", "jobFunction": "Customer Service", "category": "Card Dispenser", "details": "Kartu tidak keluar/Stuck di Card Dispenser", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 23, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000276", "area": "3", "region": "Jatim", "grapari": "GraPARI Kediri", "vendor": "Trilogi", "creator": "Eko Prasetyo", "jobFunction": "FOS", "category": "Pembayaran", "details": "Mesin GraPEx tidak bisa menerima pembayaran tunai", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 24, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000318", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Makassar", "vendor": "Trilogi", "creator": "Nurul Hidayah", "jobFunction": "Team Leader", "category": "Software", "details": "Layar Sentuh (Touchscreen) tidak merespon", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 25, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000380", "area": "3", "region": "Jateng", "grapari": "GraPARI Kulonprogo", "vendor": "Trilogi", "creator": "Tri Wahyuni", "jobFunction": "Customer Service", "category": "Smart UPS", "details": "Mesin GraPEx sering Restart Sendiri secara tiba-tiba", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 26, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000328", "area": "3", "region": "BaliNusra", "grapari": "TAP Nagekeo", "vendor": "Trilogi", "creator": "Maria Goreti", "jobFunction": "FOS", "category": "Software", "details": "Kamera Scan Wajah tidak menyala saat verifikasi", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 27, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000325", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Mataram", "vendor": "Trilogi", "creator": "I Gede Putra", "jobFunction": "Team Leader", "category": "Software", "details": "Aplikasi GraPEx Error/Hang setelah memasukkan Nomor HP", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 28, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000213", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Pondok Indah", "vendor": "Trilogi", "creator": "Rizky Ramadhan", "jobFunction": "Customer Service", "category": "Software", "details": "Gagal Beli Paket/Isi Pulsa tapi saldo terpotong", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 29, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000268", "area": "3", "region": "Jatim", "grapari": "GraPARI Bojonegoro", "vendor": "Trilogi", "creator": "Ahmad Fauzi", "jobFunction": "FOS", "category": "Software", "details": "Gagal Baca Kartu SIM Lama saat proses Upgrade 4G", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 30, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000329", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Kalabahi", "vendor": "Trilogi", "creator": "Yusuf Ismail", "jobFunction": "Team Leader", "category": "Jaringan", "details": "Koneksi Mesin GraPEx Terputus / RTO", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 31, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000326", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Ende", "vendor": "Trilogi", "creator": "Siti Nurhaliza", "jobFunction": "Customer Service", "category": "Software", "details": "Muncul Kode Error System Unavailable", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 32, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000385", "area": "3", "region": "Jateng", "grapari": "GraPARI Purwodadi", "vendor": "Trilogi", "creator": "Bambang Pamungkas", "jobFunction": "FOS", "category": "Software", "details": "Gagal Cetak Resi/Struk Transaksi", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 33, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000315", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Malili", "vendor": "Trilogi", "creator": "Andi Tenri", "jobFunction": "Team Leader", "category": "Software", "details": "Mesin GraPEx Stuck di Logo Loading awal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 34, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000314", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Soppeng", "vendor": "Trilogi", "creator": "Rahmat Hidayat", "jobFunction": "Customer Service", "category": "Login akun", "details": "Gagal Verifikasi OTP saat Transaksi", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 35, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000317", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Topoyo", "vendor": "Trilogi", "creator": "Dewi Sartika", "jobFunction": "FOS", "category": "Software", "details": "Gagal Scan Barcode/QR Code", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 36, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000384", "area": "3", "region": "Jateng", "grapari": "GraPARI Temanggung", "vendor": "Trilogi", "creator": "Agus Setiawan", "jobFunction": "Team Leader", "category": "Card Dispenser", "details": "Kartu SIM Terjepit di Slot Output", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 37, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000262", "area": "3", "region": "Jatim", "grapari": "GraPARI Surabaya Manyar", "vendor": "Trilogi", "creator": "Eka Putri", "jobFunction": "Customer Service", "category": "Pembayaran", "details": "Mesin GraPEx Tidak Mengembalikan Uang Kembalian", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 38, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000375", "area": "1", "region": "Sumbagsel", "grapari": "GraPARI Jambi", "vendor": "Trilogi", "creator": "Hendra Wijaya", "jobFunction": "FOS", "category": "CPU Error", "details": "Layar Monitor Blank Putih", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 39, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000387", "area": "3", "region": "Jateng", "grapari": "GraPARI Jepara", "vendor": "Trilogi", "creator": "Dian Sastro", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal Injeksi Data Profile ke Kartu SIM Baru", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 40, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000264", "area": "3", "region": "Jatim", "grapari": "GraPARI Tropodo Sidoarjo", "vendor": "Trilogi", "creator": "Fajar Nugraha", "jobFunction": "Customer Service", "category": "Software", "details": "Aplikasi GraPEx Freeze/Tidak Merespon", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 41, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000278", "area": "3", "region": "Jatim", "grapari": "GraPARI Bondowoso", "vendor": "Trilogi", "creator": "Lestari Anggraini", "jobFunction": "FOS", "category": "Monitor", "details": "Suara Panduan Mesin GraPEx Tidak Keluar", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 42, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000386", "area": "3", "region": "Jateng", "grapari": "GraPARI Purbalingga", "vendor": "Trilogi", "creator": "Hadi Subroto", "jobFunction": "Team Leader", "category": "Software", "details": "Gagal Pembayaran Menggunakan EDC / Kartu", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 43, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000302", "area": "3", "region": "Kalimantan", "grapari": "GraPARI Penajam Propinsi", "vendor": "Trilogi", "creator": "Rina Marlina", "jobFunction": "Customer Service", "category": "Card Dispenser", "details": "Notifikasi Stock Kartu SIM Habis", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 44, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000330", "area": "2", "region": "Jawa Barat", "grapari": "GraPARI Tasikmalaya", "vendor": "Trilogi", "creator": "Dede Kurniawan", "jobFunction": "FOS", "category": "Jaringan", "details": "Koneksi VPN / IP LAN Terputus", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 45, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000279", "area": "3", "region": "Jatim", "grapari": "GraPARI Situbondo", "vendor": "Trilogi", "creator": "Maya Indah", "jobFunction": "Team Leader", "category": "e-KTP Reader", "details": "Sensor e-KTP Reader Lampu Tidak Menyala", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 46, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000382", "area": "3", "region": "Jateng", "grapari": "GraPARI Wonosobo", "vendor": "Trilogi", "creator": "Bagus Santoso", "jobFunction": "Customer Service", "category": "Kendala pembayaran", "details": "Mesin GraPEx Menyerap Uang Kertas tapi Transaksi Gagal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 47, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000201", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Mall Ambassador Jakarta", "vendor": "Trilogi", "creator": "Siska Putri", "jobFunction": "FOS", "category": "Software", "details": "Display Layar Mesin GraPEx Bergaris-garis", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 48, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000390", "area": "3", "region": "Jateng", "grapari": "GraPARI Rembang", "vendor": "Trilogi", "creator": "Joko Susilo", "jobFunction": "Team Leader", "category": "Card Dispenser", "details": "Gagal Verifikasi Sidik Jari Error", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 49, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000346", "area": "2", "region": "Eastern Jabotabek", "grapari": "GraPARI Cibinong", "vendor": "Trilogi", "creator": "Nita Rahayu", "jobFunction": "Customer Service", "category": "Software", "details": "Gagal Transaksi Reservasi / Antrean GraPARI Online", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 50, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000381", "area": "3", "region": "Jateng", "grapari": "GraPARI Majenang", "vendor": "Trilogi", "creator": "Aris Munandar", "jobFunction": "FOS", "category": "UPS", "details": "Mesin GraPEx Mati Total / Tidak Ada Arus Listrik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 51, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000327", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Larantuka", "vendor": "Trilogi", "creator": "Yohanis Laba", "jobFunction": "Team Leader", "category": "Software", "details": "Aplikasi GraPEx Berjalan Sangat Lambat", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 52, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000339", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Rangkasbitung", "vendor": "Trilogi", "creator": "Ahmad Subagja", "jobFunction": "Customer Service", "category": "Kendala pembayaran, Ganti Kartu", "details": "Gagal Cetak Kartu Fisik eSIM", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 53, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000212", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI PGC Jakarta", "vendor": "Trilogi", "creator": "Kiki Fatmala", "jobFunction": "FOS", "category": "Software", "details": "System Timeout saat Menghubungkan ke Server Telkomsel", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 54, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000324", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Baa Rote", "vendor": "Trilogi", "creator": "Domi Taneo", "jobFunction": "Team Leader", "category": "CPU Error", "details": "Mesin Mengeluarkan Bunyi Beep Panjang Terus Menerus", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 55, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000384", "area": "3", "region": "Jateng", "grapari": "GraPARI Kebumen", "vendor": "Trilogi", "creator": "Mulyadi", "jobFunction": "Customer Service", "category": "Software", "details": "Gagal Validasi Data Dukcapil", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 56, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "L0000057", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Living World Pekanbaru", "vendor": "Trilogi", "creator": "Rian Ardianto", "jobFunction": "FOS", "category": "Software", "details": "Pintu Kaca Maintenance Terkunci", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 57, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "T0000366", "area": "3", "region": "Jateng", "grapari": "GraPARI Slawi", "vendor": "Trilogi", "creator": "Sujatmi", "jobFunction": "Team Leader", "category": "Bill Acceptor Rupiah", "details": "Laci/Vault Tempat Uang Tunai Penuh", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 58, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000284", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Painan", "vendor": "Trilogi", "creator": "Sepryanda Yon", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 59, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000266", "area": "3", "region": "Jatim", "grapari": "GraPARI Pamekasan", "vendor": "Trilogi", "creator": "Sondang Debora Sinaga", "jobFunction": "FOS", "category": "Software", "details": "Kendala ganti kartu, saat proses foto gagal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 60, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000351", "area": "2", "region": "Eastern Jabotabek", "grapari": "GraPARI Tambun", "vendor": "Trilogi", "creator": "Febrian", "jobFunction": "Team Leader", "category": "UPS", "details": "UPS rusak", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 61, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000313", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Kendari", "vendor": "Trilogi", "creator": "Revi", "jobFunction": "Customer Service", "category": "Software", "details": "Kendala ganti kartu, pas foto mental ke halaman awal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 62, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000378", "area": "1", "region": "Sumbagsel", "grapari": "GraPARI Lubuk Linggau", "vendor": "Trilogi", "creator": "Muhammad Abdillah Attaqi", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal ganti kartu keterangan \"Akses Layanan Ganti Kartu Gagal\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 63, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000388", "area": "3", "region": "Jateng", "grapari": "GraPARI Sragen", "vendor": "Trilogi", "creator": "Venno Okta", "jobFunction": "Team Leader", "category": "Software", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 64, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000377", "area": "1", "region": "Sumbagsel", "grapari": "GraPARI Bengkulu", "vendor": "Trilogi", "creator": "Akbil Revando", "jobFunction": "Customer Service", "category": "Software", "details": "Gagal ganti kartu, verifikasi wajah berhasil namun pilihan ganti kartu tidak muncul", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 65, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000332", "area": "2", "region": "Jawa Barat", "grapari": "GraPARI Garut", "vendor": "Trilogi", "creator": "Angga Sutedja", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 66, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000321", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Ambon", "vendor": "Trilogi", "creator": "Mita", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 67, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000313", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Kendari", "vendor": "Trilogi", "creator": "Revi", "jobFunction": "Customer Service", "category": "Software", "details": "Kendala ganti kartu, pas foto mental ke halaman awal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 68, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000322", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Waikabubak", "vendor": "Trilogi", "creator": "-", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 69, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000369", "area": "3", "region": "Jateng", "grapari": "GraPARI Klaten", "vendor": "Trilogi", "creator": "Tia", "jobFunction": "Team Leader", "category": "CPU/Embedded, Monitor", "details": "Layar grapex mati", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 70, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000211", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Yos Sudarso", "vendor": "Trilogi", "creator": "-", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 71, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000364", "area": "4", "region": "Sulawesi", "grapari": "GraPARI ParePare", "vendor": "Trilogi", "creator": "Fitra", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal ganti kartu, verifikasi wajah berhasil namun pilihan ganti kartu tidak muncul", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 72, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "L0000010", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Weda", "vendor": "Trilogi", "creator": "Wulandari Lestari", "jobFunction": "Team Leader", "category": "Software", "details": "Layar mati, cpu mesin grapex mati mati terus.", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 73, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000383", "area": "3", "region": "Jateng", "grapari": "GraPARI Mungkid", "vendor": "Trilogi", "creator": "Ananda Bagus P", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Mesin Grapex tidak mengeluarkan kartu padahal dilayar terbaca Transaksi Berhasil", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 74, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000267", "area": "3", "region": "Jatim", "grapari": "GraPARI Probolinggo", "vendor": "Trilogi", "creator": "Fadelis Ramadhani", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 75, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000277", "area": "3", "region": "Jatim", "grapari": "GraPARI Jombang", "vendor": "Trilogi", "creator": "Dewi Fatimah", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Aplikasi GraPEx Close/Keluar Sendiri saat Transaksi Ganti Kartu", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 76, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000389", "area": "1", "region": "Sumbagut", "grapari": "GraPARI Medan Karyajasa", "vendor": "Trilogi", "creator": "Indah Maharani Nst", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Stuck diproses cetak kartu", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 77, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000361", "area": "3", "region": "Jatim", "grapari": "GraPARI Lamongan", "vendor": "Trilogi", "creator": "Ananda Bagus P", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal Verifikasi e-KTP di mesin GraPEx padahal status NIK valid", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 78, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000204", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Emporium Pluit Jakarta", "vendor": "Trilogi", "creator": "Muhamad Iksan Hidayat", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Stuck saat Ambil Foto Wajah/Face Recognition", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 79, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000331", "area": "2", "region": "Jawa Barat", "grapari": "GraPARI Bantarkalong", "vendor": "Trilogi", "creator": "Asep Suherman", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 80, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000276", "area": "3", "region": "Jatim", "grapari": "GraPARI Kediri", "vendor": "Trilogi", "creator": "Eko Prasetyo", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 81, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000318", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Makassar", "vendor": "Trilogi", "creator": "Nurul Hidayah", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal ganti kartu, verifikasi wajah berhasil namun pilihan ganti kartu tidak muncul", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 82, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000380", "area": "3", "region": "Jateng", "grapari": "GraPARI Kulonprogo", "vendor": "Trilogi", "creator": "Tri Wahyuni", "jobFunction": "Customer Service", "category": "Software", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 83, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000328", "area": "3", "region": "BaliNusra", "grapari": "TAP Nagekeo", "vendor": "Trilogi", "creator": "Maria Goreti", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Kamera Scan Wajah tidak menyala/Layar Hitam saat verifikasi", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 84, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000325", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Mataram", "vendor": "Trilogi", "creator": "I Gede Putra", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal ganti kartu, verifikasi wajah berhasil namun pilihan ganti kartu tidak muncul", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 85, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000213", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Pondok Indah", "vendor": "Trilogi", "creator": "Rizky Ramadhan", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu dengan keterangan \"Mohon Maaf Terjadi Gangguan Sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 86, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "T0000268", "area": "3", "region": "Jatim", "grapari": "GraPARI Bojonegoro", "vendor": "Trilogi", "creator": "Ahmad Fauzi", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal Baca Kartu SIM Lama saat proses Upgrade 4G", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 87, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "T0000284", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Painan", "vendor": "Trilogi", "creator": "Sepryanda Yon", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Tidak bisa lanjut proses ganti kartu karena Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 88, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "T0000266", "area": "3", "region": "Jatim", "grapari": "GraPARI Pamekasan", "vendor": "Trilogi", "creator": "Sondang Debora Sinaga", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Tidak bisa lanjut proses ganti kartu karena Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 89, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "T0000351", "area": "2", "region": "Eastern Jabotabek", "grapari": "GraPARI Tambun", "vendor": "Trilogi", "creator": "Febrian", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Tidak bisa lanjut proses ganti kartu karena Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 90, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "T0000378", "area": "1", "region": "Sumbagsel", "grapari": "GraPARI Lubuk Linggau", "vendor": "Trilogi", "creator": "Muhammad Abdillah Attaqi", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Tidak bisa lanjut proses ganti kartu karena Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 91, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "T0000377", "area": "1", "region": "Sumbagsel", "grapari": "GraPARI Bengkulu", "vendor": "Trilogi", "creator": "Akbil Revando", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Tidak bisa lanjut proses ganti kartu karena Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 92, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "T0000364", "area": "4", "region": "Sulawesi", "grapari": "GraPARI ParePare", "vendor": "Trilogi", "creator": "Fitra", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Tidak bisa lanjut proses ganti kartu karena Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 93, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "L0000057", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Living World Pekanbaru", "vendor": "Trilogi", "creator": "Adhalalmii", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Tidak bisa lanjut proses ganti kartu karena Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 94, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "T0000366", "area": "3", "region": "Jateng", "grapari": "GraPARI Slawi", "vendor": "Trilogi", "creator": "Aissandi", "jobFunction": "Customer Service", "category": "CPU Error", "details": "Tidak bisa akses dengan ket Gangguan Layanan Telkomsel", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 95, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "T0000267", "area": "3", "region": "Jatim", "grapari": "GraPARI Probolinggo", "vendor": "Trilogi", "creator": "Fadelis Ramadhani", "jobFunction": "FOS", "category": "Jaringan", "details": "Sinyal IOT tidak stabil", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 96, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "N0000004", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Gorontalo", "vendor": "Nutech", "creator": "Allisya Dona", "jobFunction": "Team Leader", "category": "Software", "details": "Mesin GraPEx tidak menyala", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 97, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "NM000009", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Airmadidi", "vendor": "Nutech", "creator": "N", "jobFunction": "Customer Service", "category": "Software", "details": "Tidak bisa akses dengan keterangan \"Maaf, telah terjadi kesalahan pada sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 98, "tanggal": "2026-01-08", "tanggalSolved": "-", "terminal": "N0000052", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Lombok Timur", "vendor": "Nutech", "creator": "Ida Ayu Trisia Baswari", "jobFunction": "FOS", "category": "Camera", "details": "Tidak bisa akses kamera dengan keterangan \"Terjadi kesalahan dalam menyalakan kamera\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 99, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000022", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Maluk", "vendor": "Nutech", "creator": "Awi", "jobFunction": "Team Leader", "category": "Software", "details": "Tidak bisa akses dengan keterangan \"Maaf, telah terjadi kesalahan pada sistem\"", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 100, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000124", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Soroako", "vendor": "Nutech", "creator": "Tita Arika", "jobFunction": "Customer Service", "category": "Camera", "details": "Kendala FR pada saat registrasi", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 101, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "NM000011", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Sumbawa Besar", "vendor": "Nutech", "creator": "Fitri Nur Hidayah", "jobFunction": "FOS", "category": "Software", "details": "Layanan Beli Paket tidak muncul di Grapex", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 102, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000049", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Kupang", "vendor": "Nutech", "creator": "Ansel", "jobFunction": "Team Leader", "category": "Software", "details": "Gagal Beli Paket/Isi Pulsa tetapi saldo terpotong", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 103, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "NM000018", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Polewali", "vendor": "Nutech", "creator": "Syarif", "jobFunction": "Customer Service", "category": "Software", "details": "Mesin GraPEx Stuck di Logo Loading awal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 104, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000013", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Palu", "vendor": "Nutech", "creator": "Fitriani", "jobFunction": "FOS", "category": "Software", "details": "Gagal Verifikasi OTP saat Transaksi", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 105, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000008", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Manado", "vendor": "Nutech", "creator": "Steven Lengkey", "jobFunction": "Team Leader", "category": "Software", "details": "Gagal Scan QR Code di aplikasi", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 106, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000019", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Kendari Nutech", "vendor": "Nutech", "creator": "Revi Nutech", "jobFunction": "Customer Service", "category": "Card Dispenser", "details": "Kartu SIM Terjepit di Slot Output", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 107, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "NM000015", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Luwuk", "vendor": "Nutech", "creator": "Indra", "jobFunction": "FOS", "category": "Pembayaran", "details": "Mesin GraPEx Tidak Mengembalikan Uang Kembalian", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 108, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000088", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Jayapura", "vendor": "Nutech", "creator": "Yohanis", "jobFunction": "Team Leader", "category": "CPU Error", "details": "Layar Monitor Blank Putih", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 109, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000092", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Sorong", "vendor": "Nutech", "creator": "Marlyn", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Gagal Injeksi Data Profile ke Kartu SIM Baru", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 110, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000095", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Merauke", "vendor": "Nutech", "creator": "Fransiskus", "jobFunction": "FOS", "category": "Software", "details": "Aplikasi Freeze saat transaksi", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 111, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000078", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Denpasar", "vendor": "Nutech", "creator": "I Wayan Budi", "jobFunction": "Team Leader", "category": "Monitor", "details": "Suara Panduan Mesin GraPEx Tidak Keluar", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 112, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "NM000004", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Gianyar", "vendor": "Nutech", "creator": "Ni Luh Rai", "jobFunction": "Customer Service", "category": "Software", "details": "Gagal Pembayaran Menggunakan EDC", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 113, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000082", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Singaraja", "vendor": "Nutech", "creator": "Kadek Merta", "jobFunction": "FOS", "category": "Card Dispenser", "details": "Notifikasi Stock Kartu SIM Habis", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 114, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000085", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Tabanan", "vendor": "Nutech", "creator": "Gede Sudi", "jobFunction": "Team Leader", "category": "Jaringan", "details": "Koneksi VPN Terputus", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 115, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000030", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Bitung", "vendor": "Nutech", "creator": "Grace", "jobFunction": "Customer Service", "category": "e-KTP Reader", "details": "Sensor e-KTP Reader Lampu Tidak Menyala", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 116, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000032", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Tomohon", "vendor": "Nutech", "creator": "Erick", "jobFunction": "FOS", "category": "Kendala pembayaran", "details": "Mesin GraPEx Menyerap Uang Kertas tapi Transaksi Gagal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 117, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000035", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Kotamobagu", "vendor": "Nutech", "creator": "Sintia", "jobFunction": "Team Leader", "category": "Software", "details": "Display Layar Bergaris-garis", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 118, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000038", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Tahuna", "vendor": "Nutech", "creator": "Rony", "jobFunction": "Customer Service", "category": "Card Dispenser", "details": "Gagal Verifikasi Sidik Jari Error", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 119, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000040", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Poso", "vendor": "Nutech", "creator": "Agus Poso", "jobFunction": "FOS", "category": "Software", "details": "Gagal Transaksi Antrean Online", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 120, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000042", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Luwuk Nutech", "vendor": "Nutech", "creator": "Tono", "jobFunction": "Team Leader", "category": "UPS", "details": "Mesin GraPEx Mati Total", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 121, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000045", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Toli Toli", "vendor": "Nutech", "creator": "Ahmad Toli", "jobFunction": "Customer Service", "category": "Software", "details": "Aplikasi Berjalan Sangat Lambat", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 122, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000060", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Atambua", "vendor": "Nutech", "creator": "Markus", "jobFunction": "FOS", "category": "Kendala pembayaran, Ganti Kartu", "details": "Gagal Cetak Kartu Fisik eSIM", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 123, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000062", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Soe", "vendor": "Nutech", "creator": "Petrus", "jobFunction": "Team Leader", "category": "Software", "details": "System Timeout saat Menghubungkan ke Server Telkomsel", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 124, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000065", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Kefamenanu", "vendor": "Nutech", "creator": "Yohanes", "jobFunction": "Customer Service", "category": "CPU Error", "details": "Mesin Beep Panjang Terus Menerus", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 125, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000068", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Ruteng", "vendor": "Nutech", "creator": "Stefanus", "jobFunction": "FOS", "category": "Software", "details": "Gagal Validasi Data Dukcapil", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 126, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000070", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Labuan Bajo", "vendor": "Nutech", "creator": "Maria Bajo", "jobFunction": "Team Leader", "category": "Software", "details": "Pintu Kaca Maintenance Terkunci", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 127, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "N0000072", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Bajawa", "vendor": "Nutech", "creator": "Kornelis", "jobFunction": "Customer Service", "category": "Bill Acceptor Rupiah", "details": "Vault Tempat Uang Tunai Penuh", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 128, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000004", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Gorontalo", "vendor": "Nutech", "creator": "Allisya Dona", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu dengan keterangan Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 129, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "NM000009", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Airmadidi", "vendor": "Nutech", "creator": "N", "jobFunction": "Team Leader", "category": "Software", "details": "Kendala ganti kartu, foto gagal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 130, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000052", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Lombok Timur", "vendor": "Nutech", "creator": "Ida Ayu Trisia Baswari", "jobFunction": "Customer Service", "category": "UPS", "details": "UPS rusak pada Nutech", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 131, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000022", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Maluk", "vendor": "Nutech", "creator": "Awi", "jobFunction": "FOS", "category": "Software", "details": "Kendala ganti kartu, pas foto mental", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 132, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000124", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Soroako", "vendor": "Nutech", "creator": "Tita Arika", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal ganti kartu Akses Layanan Gagal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 133, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "NM000011", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Sumbawa Besar", "vendor": "Nutech", "creator": "Fitri Nur Hidayah", "jobFunction": "Customer Service", "category": "Software", "details": "Gagal ganti kartu Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 134, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000049", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Kupang", "vendor": "Nutech", "creator": "Ansel", "jobFunction": "FOS", "category": "Software", "details": "Gagal ganti kartu, verifikasi wajah berhasil namun pilihan tidak muncul", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 135, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "NM000018", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Polewali", "vendor": "Nutech", "creator": "Syarif", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 136, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000013", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Palu", "vendor": "Nutech", "creator": "Fitriani", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Gagal ganti kartu Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 137, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000008", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Manado", "vendor": "Nutech", "creator": "Steven Lengkey", "jobFunction": "FOS", "category": "Software", "details": "Pas foto mental ke halaman awal", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 138, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000019", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Kendari Nutech", "vendor": "Nutech", "creator": "Revi Nutech", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal ganti kartu Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 139, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "NM000015", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Luwuk", "vendor": "Nutech", "creator": "Indra", "jobFunction": "Customer Service", "category": "CPU/Embedded, Monitor", "details": "Layar grapex mati", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 140, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000088", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Jayapura", "vendor": "Nutech", "creator": "Yohanis", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal ganti kartu Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 141, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000092", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Sorong", "vendor": "Nutech", "creator": "Marlyn", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Verifikasi wajah berhasil namun pilihan ganti kartu tidak muncul", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 142, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000095", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Merauke", "vendor": "Nutech", "creator": "Fransiskus", "jobFunction": "Customer Service", "category": "Software", "details": "Layar mati cpu mati terus", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 143, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000078", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Denpasar", "vendor": "Nutech", "creator": "I Wayan Budi", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Mesin tidak mengeluarkan kartu", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 144, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "NM000004", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Gianyar", "vendor": "Nutech", "creator": "Ni Luh Rai", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal ganti kartu Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 145, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000082", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Singaraja", "vendor": "Nutech", "creator": "Kadek Merta", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Aplikasi close sendiri saat ganti kartu", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 146, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000085", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Tabanan", "vendor": "Nutech", "creator": "Gede Sudi", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Stuck diproses cetak kartu", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 147, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000030", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Bitung", "vendor": "Nutech", "creator": "Grace", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal verifikasi e-KTP di mesin", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 148, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000032", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Tomohon", "vendor": "Nutech", "creator": "Erick", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Stuck saat Ambil Foto Wajah", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 149, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000035", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Kotamobagu", "vendor": "Nutech", "creator": "Sintia", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal ganti kartu Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 150, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000038", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Tahuna", "vendor": "Nutech", "creator": "Rony", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal ganti kartu Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 151, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000040", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Poso", "vendor": "Nutech", "creator": "Agus Poso", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Verifikasi wajah berhasil tapi menu ganti kartu tidak muncul", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 152, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000042", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Luwuk Nutech", "vendor": "Nutech", "creator": "Tono", "jobFunction": "FOS", "category": "Software", "details": "Gagal ganti kartu Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 153, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000045", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Toli Toli", "vendor": "Nutech", "creator": "Ahmad Toli", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Kamera Scan Wajah tidak menyala", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 154, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000060", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Atambua", "vendor": "Nutech", "creator": "Markus", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Verifikasi wajah berhasil namun opsi ganti kartu tidak ada", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 155, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000062", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Soe", "vendor": "Nutech", "creator": "Petrus", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal ganti kartu Gangguan Sistem", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 156, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "N0000065", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Kefamenanu", "vendor": "Nutech", "creator": "Yohanes", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal Baca Kartu SIM Lama saat Upgrade 4G", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 157, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "N0000004", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Gorontalo", "vendor": "Nutech", "creator": "Allisya Dona", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Tidak bisa lanjut ganti kartu Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 158, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "NM000009", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Airmadidi", "vendor": "Nutech", "creator": "N", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Tidak bisa lanjut ganti kartu Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 159, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "N0000052", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Lombok Timur", "vendor": "Nutech", "creator": "Ida Ayu Trisia Baswari", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Tidak bisa lanjut ganti kartu Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 160, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "N0000022", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Maluk", "vendor": "Nutech", "creator": "Awi", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Tidak bisa lanjut ganti kartu Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 161, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "N0000124", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Soroako", "vendor": "Nutech", "creator": "Tita Arika", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Tidak bisa lanjut ganti kartu Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 162, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "NM000011", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Sumbawa Besar", "vendor": "Nutech", "creator": "Fitri Nur Hidayah", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Tidak bisa lanjut ganti kartu Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 163, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "N0000049", "area": "3", "region": "BaliNusra", "grapari": "GraPARI Kupang", "vendor": "Nutech", "creator": "Ansel", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Tidak bisa lanjut ganti kartu Menu Gunakan Foto tidak bisa diklik", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 164, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "NM000018", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Polewali", "vendor": "Nutech", "creator": "Syarif", "jobFunction": "FOS", "category": "CPU Error", "details": "Tidak bisa akses dengan ket Gangguan Layanan", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 165, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "N0000013", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Palu", "vendor": "Nutech", "creator": "Fitriani", "jobFunction": "Team Leader", "category": "Jaringan", "details": "Sinyal IOT Nutech tidak stabil", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 166, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "N0000008", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Manado", "vendor": "Nutech", "creator": "Steven Lengkey", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Kendala ganti kartu pada mesin Nutech", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 167, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "N0000019", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Kendari Nutech", "vendor": "Nutech", "creator": "Revi Nutech", "jobFunction": "FOS", "category": "Software", "details": "Kendala software mesin Nutech", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 168, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "NM000015", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Luwuk", "vendor": "Nutech", "creator": "Indra", "jobFunction": "Team Leader", "category": "Camera", "details": "Kamera Nutech mati", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 169, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "N0000088", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Jayapura", "vendor": "Nutech", "creator": "Yohanis", "jobFunction": "Customer Service", "category": "Software", "details": "Gagal koneksi server Nutech", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          
+          // Data Vendor STI (55 Tiket Baru) & Mcash (6 Tiket Baru)
+          {"id": 170, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "M0000003", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Mall Kelapa Gading", "vendor": "Mcash", "creator": "Eko STI", "jobFunction": "FOS", "category": "Software", "details": "Aplikasi GraPEx Mcash Hang saat Transaksi", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 171, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "M0000005", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Central Park", "vendor": "Mcash", "creator": "Rian Mcash", "jobFunction": "Team Leader", "category": "Isi pulsa", "details": "Gagal Isi Pulsa di Mesin Mcash", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 172, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000012", "area": "1", "region": "Sumbagut", "grapari": "GraPARI Medan Sun Plaza", "vendor": "STI", "creator": "Andi STI", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Kendala Ganti Kartu Mesin STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 173, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000018", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Pekanbaru Mall SKA", "vendor": "STI", "creator": "Budi STI", "jobFunction": "FOS", "category": "CPU Error", "details": "CPU Mesin STI Restart Sendiri", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 174, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000025", "area": "1", "region": "Sumbagsel", "grapari": "GraPARI Palembang Icon", "vendor": "STI", "creator": "Siska STI", "jobFunction": "Team Leader", "category": "Card Dispenser", "details": "Dispenser Kartu Macet pada Mesin STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 175, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000033", "area": "2", "region": "Jawa Barat", "grapari": "GraPARI Bandung Merdeka", "vendor": "STI", "creator": "Dedi STI", "jobFunction": "Customer Service", "category": "Jaringan", "details": "Jaringan LAN Mesin STI RTO", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 176, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000041", "area": "3", "region": "Jateng", "grapari": "GraPARI Semarang Pahlawan", "vendor": "STI", "creator": "Agus STI", "jobFunction": "FOS", "category": "Software", "details": "Error Keterangan Gangguan Sistem STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 177, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000048", "area": "3", "region": "Jatim", "grapari": "GraPARI Surabaya Pemuda", "vendor": "STI", "creator": "Maya STI", "jobFunction": "Team Leader", "category": "e-KTP Reader", "details": "Gagal Baca e-KTP pada Reader STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 178, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000055", "area": "3", "region": "Kalimantan", "grapari": "GraPARI Balikpapan Mall", "vendor": "STI", "creator": "Rina STI", "jobFunction": "Customer Service", "category": "Pembayaran", "details": "Uang Kembalian Tunai Tidak Keluar STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 179, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000062", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Makassar Pettarani", "vendor": "STI", "creator": "Fajar STI", "jobFunction": "FOS", "category": "Camera", "details": "Kamera FR tidak mendeteksi wajah STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 180, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "M0000008", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Gandaria City", "vendor": "Mcash", "creator": "Dian Mcash", "jobFunction": "Team Leader", "category": "Software", "details": "Gagal Beli Paket Data Mcash", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 181, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000071", "area": "1", "region": "Sumbagut", "grapari": "GraPARI Banda Aceh", "vendor": "STI", "creator": "Taufik STI", "jobFunction": "Customer Service", "category": "UPS", "details": "UPS Beep Terus Menerus STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 182, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000079", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Batam Center", "vendor": "STI", "creator": "Rian STI", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Stuck Cetak Kartu SIM STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 183, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000086", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Serang Banten", "vendor": "STI", "creator": "Hendra STI", "jobFunction": "Team Leader", "category": "Software", "details": "Menu Transaksi Utama Blank Hitam", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 184, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000093", "area": "2", "region": "Eastern Jabotabek", "grapari": "GraPARI Bekasi Cyber Park", "vendor": "STI", "creator": "Lina STI", "jobFunction": "Customer Service", "category": "Bill Acceptor Rupiah", "details": "Bill Acceptor Reject Uang Kertas STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 185, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000101", "area": "3", "region": "Jateng", "grapari": "GraPARI Solo Paragon", "vendor": "STI", "creator": "Bambang STI", "jobFunction": "FOS", "category": "CPU Error", "details": "Layar Touchscreen Tidak Respon STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 186, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000108", "area": "3", "region": "Jatim", "grapari": "GraPARI Malang Olympic Garden", "vendor": "STI", "creator": "Dewi STI", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal Upgrade Kartu 4G STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 187, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000115", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Manado Town Square", "vendor": "STI", "creator": "Sintia STI", "jobFunction": "Customer Service", "category": "Software", "details": "Aplikasi GraPEx Crash saat Input NIK", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 188, "tanggal": "2026-03-08", "tanggalSolved": "-", "terminal": "S0000122", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Ambon Plaza", "vendor": "STI", "creator": "Joko STI", "jobFunction": "FOS", "category": "Jaringan", "details": "Koneksi VPN Server STI Timeout", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 189, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "M0000003", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Mall Kelapa Gading", "vendor": "Mcash", "creator": "Eko STI", "jobFunction": "Team Leader", "category": "Software", "details": "Gagal Transaksi Layanan Mcash", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 190, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "M0000005", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Central Park", "vendor": "Mcash", "creator": "Rian Mcash", "jobFunction": "Customer Service", "category": "Software", "details": "Mesin Mcash Restart Sendiri", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 191, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000012", "area": "1", "region": "Sumbagut", "grapari": "GraPARI Medan Sun Plaza", "vendor": "STI", "creator": "Andi STI", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal ganti kartu Gangguan Sistem STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 192, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000018", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Pekanbaru Mall SKA", "vendor": "STI", "creator": "Budi STI", "jobFunction": "Team Leader", "category": "CPU Error", "details": "Layar GraPEx Blank Hitam STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 193, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000025", "area": "1", "region": "Sumbagsel", "grapari": "GraPARI Palembang Icon", "vendor": "STI", "creator": "Siska STI", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Mesin STI tidak mengeluarkan kartu", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 194, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000033", "area": "2", "region": "Jawa Barat", "grapari": "GraPARI Bandung Merdeka", "vendor": "STI", "creator": "Dedi STI", "jobFunction": "FOS", "category": "Software", "details": "Kendala foto verifikasi wajah STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 195, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000041", "area": "3", "region": "Jateng", "grapari": "GraPARI Semarang Pahlawan", "vendor": "STI", "creator": "Agus STI", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Stuck pada proses validasi data STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 196, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000048", "area": "3", "region": "Jatim", "grapari": "GraPARI Surabaya Pemuda", "vendor": "STI", "creator": "Maya STI", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Gagal Verifikasi e-KTP Reader STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 197, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000055", "area": "3", "region": "Kalimantan", "grapari": "GraPARI Balikpapan Mall", "vendor": "STI", "creator": "Rina STI", "jobFunction": "FOS", "category": "Software", "details": "Gagal transaksi isi pulsa STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 198, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000062", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Makassar Pettarani", "vendor": "STI", "creator": "Fajar STI", "jobFunction": "Team Leader", "category": "Camera", "details": "Kamera tidak menyala STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 199, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "M0000008", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Gandaria City", "vendor": "Mcash", "creator": "Dian Mcash", "jobFunction": "Customer Service", "category": "Software", "details": "Kendala transaksi Mcash timeout", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 200, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000071", "area": "1", "region": "Sumbagut", "grapari": "GraPARI Banda Aceh", "vendor": "STI", "creator": "Taufik STI", "jobFunction": "FOS", "category": "UPS", "details": "UPS Rusak Mati Total STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 201, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000079", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Batam Center", "vendor": "STI", "creator": "Rian STI", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Aplikasi close sendiri saat ganti kartu STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 202, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000086", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Serang Banten", "vendor": "STI", "creator": "Hendra STI", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Gagal ganti kartu Gangguan Sistem STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 203, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000093", "area": "2", "region": "Eastern Jabotabek", "grapari": "GraPARI Bekasi Cyber Park", "vendor": "STI", "creator": "Lina STI", "jobFunction": "FOS", "category": "Software", "details": "Gagal cetak resi transaksi STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 204, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000101", "area": "3", "region": "Jateng", "grapari": "GraPARI Solo Paragon", "vendor": "STI", "creator": "Bambang STI", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Gagal injeksi profile SIM card STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 205, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000108", "area": "3", "region": "Jatim", "grapari": "GraPARI Malang Olympic Garden", "vendor": "STI", "creator": "Dewi STI", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Gagal ganti kartu Gangguan Sistem STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 206, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000115", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Manado Town Square", "vendor": "STI", "creator": "Sintia STI", "jobFunction": "FOS", "category": "Software", "details": "Verifikasi wajah berhasil opsi tidak muncul STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 207, "tanggal": "2026-05-08", "tanggalSolved": "-", "terminal": "S0000122", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Ambon Plaza", "vendor": "STI", "creator": "Joko STI", "jobFunction": "Team Leader", "category": "Jaringan", "details": "Sinyal IOT mesin STI terputus", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 208, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000012", "area": "1", "region": "Sumbagut", "grapari": "GraPARI Medan Sun Plaza", "vendor": "STI", "creator": "Andi STI", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Tidak bisa klik Menu Gunakan Foto STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 209, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000018", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Pekanbaru Mall SKA", "vendor": "STI", "creator": "Budi STI", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Tidak bisa klik Menu Gunakan Foto STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 210, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000025", "area": "1", "region": "Sumbagsel", "grapari": "GraPARI Palembang Icon", "vendor": "STI", "creator": "Siska STI", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Tidak bisa klik Menu Gunakan Foto STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 211, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000033", "area": "2", "region": "Jawa Barat", "grapari": "GraPARI Bandung Merdeka", "vendor": "STI", "creator": "Dedi STI", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Tidak bisa klik Menu Gunakan Foto STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 212, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000041", "area": "3", "region": "Jateng", "grapari": "GraPARI Semarang Pahlawan", "vendor": "STI", "creator": "Agus STI", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Tidak bisa klik Menu Gunakan Foto STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 213, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000048", "area": "3", "region": "Jatim", "grapari": "GraPARI Surabaya Pemuda", "vendor": "STI", "creator": "Maya STI", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Tidak bisa klik Menu Gunakan Foto STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 214, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000055", "area": "3", "region": "Kalimantan", "grapari": "GraPARI Balikpapan Mall", "vendor": "STI", "creator": "Rina STI", "jobFunction": "Customer Service", "category": "Ganti Kartu", "details": "Tidak bisa klik Menu Gunakan Foto STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 215, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000062", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Makassar Pettarani", "vendor": "STI", "creator": "Fajar STI", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Tidak bisa klik Menu Gunakan Foto STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 216, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000071", "area": "1", "region": "Sumbagut", "grapari": "GraPARI Banda Aceh", "vendor": "STI", "creator": "Taufik STI", "jobFunction": "Team Leader", "category": "CPU Error", "details": "Mesin STI Hang / Freeze", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 217, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000079", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Batam Center", "vendor": "STI", "creator": "Rian STI", "jobFunction": "Customer Service", "category": "Jaringan", "details": "Koneksi IP Mesin STI Terputus", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 218, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000086", "area": "2", "region": "Jakarta Banten", "grapari": "GraPARI Serang Banten", "vendor": "STI", "creator": "Hendra STI", "jobFunction": "FOS", "category": "Software", "details": "Gagal akses layanan Telkomsel STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 219, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000093", "area": "2", "region": "Eastern Jabotabek", "grapari": "GraPARI Bekasi Cyber Park", "vendor": "STI", "creator": "Lina STI", "jobFunction": "Team Leader", "category": "Ganti Kartu", "details": "Kendala cetak kartu SIM STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 220, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000101", "area": "3", "region": "Jateng", "grapari": "GraPARI Solo Paragon", "vendor": "STI", "creator": "Bambang STI", "jobFunction": "Customer Service", "category": "Software", "details": "Kendala software mesin STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 221, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000108", "area": "3", "region": "Jatim", "grapari": "GraPARI Malang Olympic Garden", "vendor": "STI", "creator": "Dewi STI", "jobFunction": "FOS", "category": "Camera", "details": "Kamera verifikasi mati STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 222, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000115", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Manado Town Square", "vendor": "STI", "creator": "Sintia STI", "jobFunction": "Team Leader", "category": "Software", "details": "Gagal koneksi server STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 223, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000122", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Ambon Plaza", "vendor": "STI", "creator": "Joko STI", "jobFunction": "Customer Service", "category": "Card Dispenser", "details": "Kartu SIM terjepit dispenser STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 224, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000130", "area": "1", "region": "Sumbagut", "grapari": "GraPARI Pematang Siantar", "vendor": "STI", "creator": "Doni STI", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal proses ganti kartu STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 225, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000135", "area": "1", "region": "Sumbagteng", "grapari": "GraPARI Dumai", "vendor": "STI", "creator": "Rudi STI", "jobFunction": "Team Leader", "category": "Software", "details": "Error sistem aplikasi GraPEx STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 226, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000140", "area": "2", "region": "Jawa Barat", "grapari": "GraPARI Cirebon Superblock", "vendor": "STI", "creator": "Irfan STI", "jobFunction": "Customer Service", "category": "UPS", "details": "UPS tidak stabil STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 227, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000145", "area": "3", "region": "Jateng", "grapari": "GraPARI Purwokerto", "vendor": "STI", "creator": "Anang STI", "jobFunction": "FOS", "category": "Ganti Kartu", "details": "Gagal ganti kartu NIK tidak terbaca STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 228, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000150", "area": "3", "region": "Jatim", "grapari": "GraPARI Banyuwangi", "vendor": "STI", "creator": "Bayu STI", "jobFunction": "Team Leader", "category": "Software", "details": "Gagal transaksi pulsa STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 229, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000155", "area": "4", "region": "Sulawesi", "grapari": "GraPARI Palopo", "vendor": "STI", "creator": "Nurlina STI", "jobFunction": "Customer Service", "category": "CPU Error", "details": "Mesin STI mati total", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"},
+          {"id": 230, "tanggal": "2026-10-08", "tanggalSolved": "-", "terminal": "S0000160", "area": "4", "region": "PapuaMaluku", "grapari": "GraPARI Timika", "vendor": "STI", "creator": "Piter STI", "jobFunction": "FOS", "category": "Software", "details": "Gagal akses server pusat STI", "handling": "Remote", "remarks": "-", "notes": "-", "progress": "On Progress"}
+        ];
+
+        // State pagination & edit
+        let currentPage = 1;
+        const pageSize = 20;
+        let editingId = null;
+
+        // Chart instances
+        let areaChartInstance = null;
+        let categoryChartInstance = null;
+
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        function initCharts() {
+            const ctxArea = document.getElementById('areaChart').getContext('2d');
+            areaChartInstance = new Chart(ctxArea, {
+                type: 'bar',
+                data: {
+                    labels: ['Area 1', 'Area 2', 'Area 3', 'Area 4'],
+                    datasets: [{
+                        label: 'Jumlah Kendala',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                        borderRadius: 8,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#64748b', font: { weight: 600 } }, grid: { display: false } },
+                        y: { beginAtZero: true, ticks: { stepSize: 10, color: '#64748b' }, grid: { color: '#1e293b' } }
+                    }
+                }
+            });
+
+            const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+            categoryChartInstance = new Chart(ctxCategory, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Software', 'Ganti Kartu', 'UPS', 'CPU Error', 'Jaringan', 'Camera', 'Lainnya'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)', 
+                            'rgba(16, 185, 129, 0.8)', 
+                            'rgba(245, 158, 11, 0.8)', 
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                            'rgba(236, 72, 153, 0.8)',
+                            'rgba(100, 116, 139, 0.8)'
+                        ],
+                        borderWidth: 4,
+                        borderColor: '#0f172a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#cbd5e1', padding: 8, usePointStyle: true, font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // Get Filtered Data
+        function getFilteredData() {
+            const selectedVendor = document.getElementById('filterVendor').value;
+            const selectedArea = document.getElementById('filterArea').value;
+            const selectedRegion = document.getElementById('filterRegion').value;
+            const selectedCategory = document.getElementById('filterCategory').value;
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            return incidents.filter(item => {
+                const matchVendor = selectedVendor === 'ALL' || item.vendor === selectedVendor;
+                const matchArea = selectedArea === 'ALL' || item.area === selectedArea;
+                const matchRegion = selectedRegion === 'ALL' || item.region === selectedRegion;
+                
+                let matchCategory = selectedCategory === 'ALL';
+                if (!matchCategory) {
+                    if (selectedCategory === 'Software') matchCategory = item.category === 'Software' || item.category === 'Aplikasi';
+                    else if (selectedCategory === 'UPS') matchCategory = item.category.includes('UPS');
+                    else matchCategory = item.category === selectedCategory;
+                }
+                
+                const matchSearch = searchKeyword === '' || 
+                    item.terminal.toLowerCase().includes(searchKeyword) ||
+                    item.grapari.toLowerCase().includes(searchKeyword) ||
+                    item.region.toLowerCase().includes(searchKeyword) ||
+                    item.vendor.toLowerCase().includes(searchKeyword) ||
+                    item.creator.toLowerCase().includes(searchKeyword) ||
+                    item.jobFunction.toLowerCase().includes(searchKeyword) ||
+                    item.details.toLowerCase().includes(searchKeyword);
+
+                return matchVendor && matchArea && matchRegion && matchCategory && matchSearch;
+            });
+        }
+
+        // Render Dashboard & Pagination
+        function renderDashboard() {
+            const filteredData = getFilteredData();
+
+            // Update KPIs
+            document.getElementById('kpiTotal').textContent = filteredData.length;
+            document.getElementById('kpiProgress').textContent = filteredData.filter(i => i.progress === 'On Progress').length;
+            document.getElementById('kpiDone').textContent = filteredData.filter(i => i.progress === 'Done').length;
+            document.getElementById('kpiBadTicket').textContent = filteredData.filter(i => i.remarks === 'Bad Ticket').length;
+            document.getElementById('badgeFilteredCount').textContent = `${filteredData.length} Tiket`;
+
+            // Pagination calculation
+            const totalItems = filteredData.length;
+            const totalPages = Math.ceil(totalItems / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalItems);
+            const paginatedData = filteredData.slice(startIndex, endIndex);
+
+            // Update Table Body
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (paginatedData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-500">Tidak ada data kendala yang sesuai filter.</td></tr>`;
+            } else {
+                paginatedData.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-800/40 transition-colors group";
+
+                    // Badge category styling
+                    let catBg = "bg-blue-950 text-blue-300";
+                    if (item.category === 'Ganti Kartu') catBg = "bg-emerald-950 text-emerald-300";
+                    if (item.category.includes('UPS')) catBg = "bg-amber-950 text-amber-300";
+                    if (item.category.includes('CPU')) catBg = "bg-rose-950 text-rose-300";
+                    if (item.category === 'Jaringan') catBg = "bg-purple-950 text-purple-300";
+                    if (item.category === 'Camera') catBg = "bg-pink-950 text-pink-300";
+
+                    // Badge Job Function
+                    let jfBg = "bg-slate-800 text-slate-300 border-slate-700";
+                    if (item.jobFunction === 'Customer Service') jfBg = "bg-sky-950 text-sky-300 border-sky-800";
+                    if (item.jobFunction === 'FOS') jfBg = "bg-indigo-950 text-indigo-300 border-indigo-800";
+                    if (item.jobFunction === 'Team Leader') jfBg = "bg-purple-950 text-purple-300 border-purple-800";
+
+                    // Progress Status Dropdown
+                    const progressSelectHTML = `
+                        <select onchange="updateProgress(${item.id}, this.value)" class="bg-slate-950 border border-slate-700 text-xs font-bold rounded-full px-3 py-1 cursor-pointer focus:outline-none ${item.progress === 'Done' ? 'text-emerald-400 border-emerald-800' : 'text-amber-400 border-amber-800'}">
+                            <option value="On Progress" ${item.progress === 'On Progress' ? 'selected' : ''}>🟡 On Progress</option>
+                            <option value="Done" ${item.progress === 'Done' ? 'selected' : ''}>🟢 Done</option>
+                        </select>
+                    `;
+
+                    // Remarks
+                    let remarksHTML = `<span class="text-slate-500 text-xs">${item.remarks}</span>`;
+                    if (item.remarks === 'Bad Ticket') {
+                        remarksHTML = `<span class="text-rose-400 font-bold text-xs block"><i class="fa-solid fa-xmark mr-1"></i>Bad Ticket</span>`;
+                    }
+
+                    const notesHTML = item.notes && item.notes !== '-' 
+                        ? `<p class="text-xs text-slate-400 italic mt-0.5 truncate max-w-[140px]" title="${item.notes}">" ${item.notes} "</p>` 
+                        : '';
+
+                    tr.innerHTML = `
+                        <td class="px-5 py-3.5 whitespace-nowrap">
+                            <div class="text-slate-300 font-medium">${item.tanggal}</div>
+                            <div class="text-xs text-slate-500">${item.tanggalSolved !== '-' ? 'Solved: ' + item.tanggalSolved : 'Solved: -'}</div>
+                        </td>
+                        <td class="px-5 py-3.5 font-mono font-bold text-red-400 whitespace-nowrap">${item.terminal}</td>
+                        <td class="px-5 py-3.5 whitespace-nowrap">
+                            <div class="font-semibold text-slate-200">${item.grapari}</div>
+                            <div class="text-xs text-slate-500">Area ${item.area} (${item.region})</div>
+                        </td>
+                        <td class="px-5 py-3.5 whitespace-nowrap font-medium text-slate-300">
+                            <i class="fa-solid fa-building text-slate-500 text-xs mr-1.5"></i>${item.vendor}
+                        </td>
+                        <td class="px-5 py-3.5 whitespace-nowrap">
+                            <div class="text-slate-200 font-medium">${item.creator}</div>
+                            <span class="${jfBg} text-[10px] font-semibold px-2 py-0.5 rounded-full border inline-block mt-0.5">${item.jobFunction}</span>
+                        </td>
+                        <td class="px-5 py-3.5"><span class="${catBg} text-xs font-bold px-3 py-1 rounded-full inline-block">${item.category}</span></td>
+                        <td class="px-5 py-3.5 max-w-xs truncate group-hover:text-white" title="${item.details}">${item.details}</td>
+                        <td class="px-5 py-3.5 whitespace-nowrap"><span class="bg-slate-800 text-slate-300 text-xs px-2.5 py-1 rounded border border-slate-700">${item.handling}</span></td>
+                        <td class="px-5 py-3.5 text-center whitespace-nowrap">${progressSelectHTML}</td>
+                        <td class="px-5 py-3.5 whitespace-nowrap">
+                            ${remarksHTML}
+                            ${notesHTML}
+                        </td>
+                        <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                            <button onclick="editIncident(${item.id})" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 rounded-lg border border-slate-700 transition shadow" title="Edit Tiket">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Update Pagination UI
+            renderPaginationControls(totalItems, totalPages, startIndex, endIndex);
+
+            // Update Analytics Charts
+            updateCharts(filteredData);
+        }
+
+        // Render Pagination Controls UI
+        function renderPaginationControls(totalItems, totalPages, startIndex, endIndex) {
+            const paginationInfo = document.getElementById('paginationInfo');
+            const paginationButtons = document.getElementById('paginationButtons');
+
+            paginationInfo.textContent = totalItems > 0 
+                ? `Menampilkan ${startIndex + 1} - ${endIndex} dari ${totalItems} data`
+                : `Menampilkan 0 data`;
+
+            paginationButtons.innerHTML = '';
+
+            // Prev Button
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `px-3 py-1.5 rounded-lg border border-slate-700 font-medium transition ${currentPage === 1 ? 'opacity-40 cursor-not-allowed bg-slate-800/40 text-slate-600' : 'bg-slate-800 hover:bg-slate-700 text-slate-200'}`;
+            prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left text-xs"></i> Prev`;
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderDashboard(); } };
+            paginationButtons.appendChild(prevBtn);
+
+            // Page Number Buttons
+            for (let page = 1; page <= totalPages; page++) {
+                if (totalPages > 7 && Math.abs(page - currentPage) > 2 && page !== 1 && page !== totalPages) {
+                    if (page === 2 || page === totalPages - 1) {
+                        const dots = document.createElement('span');
+                        dots.className = 'px-1 text-slate-600';
+                        dots.textContent = '...';
+                        paginationButtons.appendChild(dots);
+                    }
+                    continue;
+                }
+
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `px-3 py-1.5 rounded-lg text-xs font-bold transition ${page === currentPage ? 'bg-red-600 text-white shadow' : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'}`;
+                pageBtn.textContent = page;
+                pageBtn.onclick = () => { currentPage = page; renderDashboard(); };
+                paginationButtons.appendChild(pageBtn);
+            }
+
+            // Next Button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `px-3 py-1.5 rounded-lg border border-slate-700 font-medium transition ${currentPage === totalPages || totalPages === 0 ? 'opacity-40 cursor-not-allowed bg-slate-800/40 text-slate-600' : 'bg-slate-800 hover:bg-slate-700 text-slate-200'}`;
+            nextBtn.innerHTML = `Next <i class="fa-solid fa-chevron-right text-xs"></i>`;
+            nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+            nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderDashboard(); } };
+            paginationButtons.appendChild(nextBtn);
+        }
+
+        // Update Charts Data
+        function updateCharts(data) {
+            const areaCounts = [1, 2, 3, 4].map(a => data.filter(d => d.area === String(a)).length);
+            areaChartInstance.data.datasets[0].data = areaCounts;
+            areaChartInstance.update();
+
+            const catSoftware = data.filter(d => d.category === 'Software' || d.category === 'Aplikasi').length;
+            const catGantiKartu = data.filter(d => d.category === 'Ganti Kartu').length;
+            const catUPS = data.filter(d => d.category.includes('UPS')).length;
+            const catCPU = data.filter(d => d.category.includes('CPU')).length;
+            const catJaringan = data.filter(d => d.category === 'Jaringan').length;
+            const catCamera = data.filter(d => d.category === 'Camera').length;
+            const catLainnya = data.length - (catSoftware + catGantiKartu + catUPS + catCPU + catJaringan + catCamera);
+
+            categoryChartInstance.data.datasets[0].data = [catSoftware, catGantiKartu, catUPS, catCPU, catJaringan, catCamera, Math.max(0, catLainnya)];
+            categoryChartInstance.update();
+        }
+
+        // Update Progress Action
+        function updateProgress(id, newProgress) {
+            const item = incidents.find(i => i.id === id);
+            if (item) {
+                item.progress = newProgress;
+                if (newProgress === 'Done' && item.tanggalSolved === '-') {
+                    const today = new Date().toISOString().split('T')[0];
+                    item.tanggalSolved = today;
+                }
+                renderDashboard();
+            }
+        }
+
+        // Edit Incident Modal
+        function editIncident(id) {
+            const item = incidents.find(i => i.id === id);
+            if (!item) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-red-500"></i> Edit Kendala (${item.terminal})`;
+
+            document.getElementById('inputTanggal').value = item.tanggal;
+            document.getElementById('inputTanggalSolved').value = item.tanggalSolved !== '-' ? item.tanggalSolved : '';
+            document.getElementById('inputTerminal').value = item.terminal;
+            document.getElementById('inputVendor').value = item.vendor;
+            document.getElementById('inputArea').value = item.area;
+            document.getElementById('inputRegion').value = item.region;
+            document.getElementById('inputGrapari').value = item.grapari;
+            document.getElementById('inputCreator').value = item.creator;
+            document.getElementById('inputJobFunction').value = item.jobFunction;
+            document.getElementById('inputCategory').value = item.category;
+            document.getElementById('inputHandling').value = item.handling;
+            document.getElementById('inputProgress').value = item.progress;
+            document.getElementById('inputRemarks').value = item.remarks;
+            document.getElementById('inputDetails').value = item.details;
+            document.getElementById('inputNotes').value = item.notes !== '-' ? item.notes : '';
+
+            document.getElementById('modalCreate').classList.remove('hidden');
+        }
+
+        // Export CSV Function
+        function exportToCSV() {
+            const filtered = getFilteredData();
+            if (filtered.length === 0) {
+                alert('Tidak ada data untuk diexport!');
+                return;
+            }
+
+            const headers = ['No ID', 'Tanggal Raise', 'Tanggal Solved', 'Terminal ID', 'Area', 'Region', 'GraPARI', 'Vendor', 'Creator', 'Job Function', 'Category', 'Details', 'Handling', 'Progress', 'Remarks', 'Notes'];
+            
+            const rows = filtered.map(item => [
+                item.id,
+                `"${item.tanggal}"`,
+                `"${item.tanggalSolved}"`,
+                `"${item.terminal}"`,
+                `"Area ${item.area}"`,
+                `"${item.region}"`,
+                `"${item.grapari.replace(/"/g, '""')}"`,
+                `"${item.vendor}"`,
+                `"${item.creator.replace(/"/g, '""')}"`,
+                `"${item.jobFunction}"`,
+                `"${item.category}"`,
+                `"${item.details.replace(/"/g, '""')}"`,
+                `"${item.handling}"`,
+                `"${item.progress}"`,
+                `"${item.remarks}"`,
+                `"${item.notes.replace(/"/g, '""')}"`
+            ]);
+
+            const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
+                + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `grapex_monitoring_kendala_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Event Listeners for Filters (Reset Page to 1)
+        const filterHandler = () => { currentPage = 1; renderDashboard(); };
+        document.getElementById('filterVendor').addEventListener('change', filterHandler);
+        document.getElementById('filterArea').addEventListener('change', filterHandler);
+        document.getElementById('filterRegion').addEventListener('change', filterHandler);
+        document.getElementById('filterCategory').addEventListener('change', filterHandler);
+        document.getElementById('searchInput').addEventListener('input', filterHandler);
+
+        document.getElementById('btnRefresh').addEventListener('click', () => {
+            document.getElementById('filterVendor').value = 'ALL';
+            document.getElementById('filterArea').value = 'ALL';
+            document.getElementById('filterRegion').value = 'ALL';
+            document.getElementById('filterCategory').value = 'ALL';
+            document.getElementById('searchInput').value = '';
+            currentPage = 1;
+            renderDashboard();
+        });
+
+        document.getElementById('btnExport').addEventListener('click', exportToCSV);
+
+        // Modal Logic
+        const modal = document.getElementById('modalCreate');
+        document.getElementById('btnOpenModal').addEventListener('click', () => {
+            editingId = null;
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-plus-circle text-red-500"></i> Input Kendala GraPEx Baru`;
+            document.getElementById('formCreate').reset();
+            document.getElementById('inputTanggal').valueAsDate = new Date();
+            modal.classList.remove('hidden');
+        });
+
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            editingId = null;
+        };
+        document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+        document.getElementById('btnCancelModal').addEventListener('click', closeModal);
+
+        // Form Submit Handler
+        document.getElementById('formCreate').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                tanggal: document.getElementById('inputTanggal').value,
+                tanggalSolved: document.getElementById('inputTanggalSolved').value || "-",
+                terminal: document.getElementById('inputTerminal').value.trim(),
+                vendor: document.getElementById('inputVendor').value,
+                area: document.getElementById('inputArea').value,
+                region: document.getElementById('inputRegion').value,
+                grapari: document.getElementById('inputGrapari').value.trim(),
+                creator: document.getElementById('inputCreator').value.trim(),
+                jobFunction: document.getElementById('inputJobFunction').value,
+                category: document.getElementById('inputCategory').value,
+                handling: document.getElementById('inputHandling').value,
+                progress: document.getElementById('inputProgress').value,
+                remarks: document.getElementById('inputRemarks').value,
+                details: document.getElementById('inputDetails').value.trim(),
+                notes: document.getElementById('inputNotes').value.trim() || "-"
+            };
+
+            if (editingId !== null) {
+                const index = incidents.findIndex(i => i.id === editingId);
+                if (index !== -1) {
+                    incidents[index] = { id: editingId, ...formData };
+                }
+            } else {
+                const newIncident = {
+                    id: Date.now(),
+                    ...formData
+                };
+                incidents.unshift(newIncident);
+            }
+
+            closeModal();
+            renderDashboard();
+        });
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            renderDashboard();
+        });
+    </script>
+</body>
+</html>
